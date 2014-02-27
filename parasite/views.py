@@ -171,7 +171,7 @@ def listverse(full,translation,book,chapter,verse):
 			
 # /eng-x-bible-engkj-v0/41001001/ 
 @parasite.route('/<translation>/<regex("\d{8}"):verse>/',defaults={'full': ''})
-@parasite.route('/<translation>/<regex("\d{8}"):verse>/',defaults={'full': full})
+@parasite.route('/full/<translation>/<regex("\d{8}"):verse>/',defaults={'full': full})
 def listverseflat(full,translation,verse):
 		g.full = full
 		if g.full == '' and verse[:2] != '41':
