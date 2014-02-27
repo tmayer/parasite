@@ -1,0 +1,339 @@
+#container {
+display:block;
+margin:0 auto;
+padding:0;
+text-align:left;
+}
+
+#contents {
+padding-left: 40px;
+width:90%;
+text-align: justify;
+}
+
+#footer {
+background:url(http://paralleltext.info/data/static/images/cloud/cloud-bottom.png) bottom repeat-x;
+}
+
+#footer p {
+background:url(http://paralleltext.info/data/static/images/cloud/cloud-bottom-left.png) bottom left no-repeat;
+margin:0;
+}
+
+#footer p a {
+background:url(http://paralleltext.info/data/static/images/cloud/cloud-bottom-right.png) bottom right no-repeat;
+color:#999;
+display:block;
+font-size:85%;
+padding: 0em 3.4em 2.2em 0em;
+text-align:right;
+text-decoration:none;
+}
+
+#header {
+background:url(http://paralleltext.info/data/static/images/cloud/cloud-top.png) top repeat-x;
+position:relative;
+z-index:75;
+}
+
+#inner-prettification {
+background:url(http://paralleltext.info/data/static/images/cloud/cloud-right.png) right repeat-y;
+}
+
+#main {
+clear:both;
+margin:0 auto 10px;
+width:70em;
+}
+
+#outer-prettification {
+background:#F3F3F3 url(http://paralleltext.info/data/static/images/cloud/cloud-left.png) left repeat-y;
+}
+
+#window {
+clear:both;
+margin:5px;
+padding:0;
+}
+
+a {
+text-decoration:none;
+color: #4876a2;
+}
+
+a:hover {
+text-decoration: underline;	
+}
+
+a img {
+border:0;
+}
+
+
+
+acronym {
+cursor:help;
+}
+
+body {
+color:#000;
+font-family: 'Lucida Grande', 'Bitstream Vera Sans', Verdana, sans-serif;
+font-size:80%;
+margin:0;
+padding:0;
+height: 100%;
+min-height: 100%;
+}
+
+html {
+min-height: 100%;
+height: 100%;	
+}
+
+h1#title {
+background:url(http://paralleltext.info/data/static/images/cloud/cloud-top-left.png) top left no-repeat;
+font-size:220%;
+margin-top:5px;
+}
+
+h1#title a {
+background:url(http://paralleltext.info/data/static/images/cloud/cloud-top-right.png) top right no-repeat;
+color:#000;
+display:block;
+font-size:80%;
+font-weight:400;
+padding-top: 10px;
+padding-left: 40px;
+text-decoration:none;
+}
+
+#page_title {
+font-size: 150%;
+font-weight: bold;
+}
+
+h2 {
+color:#000;
+display:block;
+font-size:130%;
+font-weight:400;
+text-decoration:none;
+}
+
+h3 {
+color:#000;
+display:block;
+font-size:120%;
+font-weight:400;
+text-decoration:none;
+}
+
+hr {
+height:1px;
+text-align:center;
+width:90%;
+}
+
+img.centered {
+display:block;
+margin:0 auto;
+padding:0;
+text-align:center;
+}
+
+img.centered-photo {
+background-color:#fafafa;
+border:solid 1px #bbb;
+display:block;
+margin:0 auto;
+padding:3px;
+text-align:center;
+}
+
+pre {
+overflow:auto;
+}
+
+
+#top {
+font-size: 0.1em;
+height: 0.1em;
+}
+
+#top a{
+color: #ffffff;
+}
+
+#nav a{
+font-size: 100%;
+color: #4876a2;
+/*text-shadow: 0 1px 2px rgba(0,0,0,.6);*/
+}
+
+#nav a:hover {
+text-decoration: underline;	
+}
+
+#nav li{
+margin-left: -35px;
+margin-bottom: 10px;
+list-style-type: none;
+line-height: 10px;
+}
+
+#leftbar {
+background-color: #C0C0C0;
+background:url(http://paralleltext.info/data/static/images/page-fade.png) top left repeat-x;
+}
+
+
+path { stroke: black; stroke-width: 0.25px; } 
+#map { 
+    position: relative; 
+    top: 0px; 
+    left: 0px; 
+    border: thin solid #C0C0C0;
+    border-radius: 5px;
+    cursor: move;
+} 
+#draggable {
+	position: absolute;
+	top: 270px;
+	left: 90px;
+    border: none;
+    background: none;
+}
+#info { 
+    position: relative; 
+    border: thin solid #C0C0C0;
+    border-radius: 3px;
+    box-shadow:1px 1px 8px #666;
+    width: 160px;
+    background-color: white;
+	cursor: move;
+}
+#info table  {
+    font-size: 10pt;
+    padding: 0px;
+    spacing: 0px;
+    width: 160px;
+}
+.firsttd {
+    width: 10px;
+    text-align: right;
+}
+.tablehead {
+    border-bottom: thin solid #C0C0C0;
+}
+#info.hidden {
+    display: none;
+}
+#opacitydiv { 
+    position: relative; 
+    bottom: 45px; 
+    left: 70px; z-index: 100; 
+    font-size: 10pt; 
+} 
+path.arc { 
+    fill: none; 
+    z-index: 0; 
+}
+.node{ z-index: 100; } 
+#opacity{ 
+    cursor: pointer; 
+}
+
+#close {
+	position: relative;
+	left: 150px;
+	top: 20px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    background: url('http://paralleltext.info/data/static/img/close2.png') no-repeat;
+	z-index: 2;
+}
+#close.hidden {
+    display: none;
+}
+span.active {
+    color: FireBrick;
+    text-decoration: underline;
+}
+
+#search {
+    z-index: 1000;
+    position:relative;
+    top: 0px;
+    left: 290px;
+    font-family:Helvectica,Arial,Verdana,sans-serif;
+    font-size: 11pt;
+}
+#logo {
+    color: #D0D0D0;
+    font-size: 20pt;
+    margin-left: 20px;
+    font-family: Arial, Verdana, Helvetica, sans-serif;
+	text-shadow: 0px 2px 2px #666;
+}
+
+tr:nth-child(even) {background: #cccccc}
+tr:nth-child(odd) {background: none}
+
+.infobox tr {background: none;}
+
+.infobox {
+	border-collapse:collapse;
+}
+
+.infobox tr td {
+	padding-top: 0px;
+}
+
+.infobox tr td a {
+	color: #4876a2;
+}
+
+td { 
+border-radius: 3px;
+padding: 3px;
+}
+
+/* tables */
+table.tablesorter {
+	font-family:arial;
+	margin:10px 0pt 15px;
+	font-size: 10pt;
+	width: 100%;
+	text-align: left;
+}
+table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+	background-color: #e6EEEE;
+	border: 1px solid #FFF;
+	font-size: 10pt;
+	padding: 4px;
+}
+table.tablesorter thead tr .header {
+	background-image: url(img/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+}
+table.tablesorter tbody td {
+	color: #4876a2;
+	padding: 4px;
+	vertical-align: top;
+}
+table.tablesorter tbody tr.odd td {
+	background-color:red;
+}
+table.tablesorter thead tr .headerSortUp {
+	background-image: url(img/asc.gif);
+}
+table.tablesorter thead tr .headerSortDown {
+	background-image: url(img/desc.gif);
+}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+background-color: #4876a2;
+}
+

@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block body %}
+<form method="post" action="/compare/">
+	<table border="0">
+	<tr><td>
+	<label>Search</label></td>
+	<td>
+	<input type="text" name="query" size="50">
+	</td></tr>
+	<tr><td>
+	<label>in</label>
+	</td><td>
+    <select name="source" size="1">
+    {% for translation in translations %}
+    	<option>{{ translation }}</option>
+    {% endfor %}
+    </select>
+    </td></tr>
+    <tr><td>
+    <label>compare with</label>
+    </td><td>
+    <select name="target" size="1">
+    	<option>None</option>
+    {% for translation in translations %}
+    	<option>{{ translation }}</option>
+    {% endfor %}
+    </select>
+	</td></tr>
+	<tr><td></td><td><input type="submit" value="Show results"></td></tr>
+	</table>
+</form>
+{% endblock %}

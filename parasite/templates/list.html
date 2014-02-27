@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+{% block includefiles %}
+		<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+		<script type="text/javascript" src="{{ url_for('static',filename='scripts/jquery.tablesorter.js') }}"></script> 
+		
+		<script>
+		$(document).ready(function() 
+			{ 
+				$("#myTable").tablesorter(); 
+			} 
+		); 
+		</script>
+    
+
+{% endblock %}
+{% block body %}
+
+<h1 id="page_title">Available translations</h1>
+
+{% if g.full != '' %}
+<p>The complete data package including all translations can be downloaded 
+<a href='all.zip'>here</a> (File size appr. 500 MB!).</p>
+{% endif %}
+
+<table border="0" id="myTable" class="tablesorter">
+<thead>
+	<tr>
+		<th></th>
+		<th>Translation</th>
+		<th>Language</th>
+		<th>Family</th>
+	</tr>
+</thead>
+<tbody>
+{% for trans in translations %}
+	<tr><td style="text-align:right;color: black;">{{ loop.index }}</td>
+	<td><a href='/{{ g.full }}{{ trans[0] }}/'>{{ trans[0] }}</a> </td>
+	<td style='color: black;'>{{ trans[1] }} </td><td style='color: black;'>{{ trans[2] }}</td></tr>
+{% endfor %}
+
+</tbody>
+</table>
+
+{% endblock %}

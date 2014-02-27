@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1 id="page_title">
+	<a href="/{{ g.full }}{{ translation }}">{{ translation }}</a>
+	<a href="/{{ g.full }}{{ translation }}/{{ book }}/">{{ book }}</a>:{{ chapter }}
+</h1>
+<table border='0'>
+{% for verse in verses %}
+	<tr><td valign="top">
+	<a href='/{{ g.full}}{{ translation }}/{{ book }}/{{ chapter }}/{{ verse[0][-3:] }}/'>{{ verse[0] }}</a></td>
+	<td> {{ verse[1] }}</td></tr>
+{% endfor %}
+</table>
+{% endblock %}
