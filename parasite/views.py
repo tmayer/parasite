@@ -1,5 +1,5 @@
 from parasite import parasite
-from flask import render_template, url_for, redirect, g
+from flask import render_template, url_for, redirect, g, request
 from werkzeug.routing import BaseConverter
 import os
 import codecs
@@ -34,14 +34,47 @@ def listtranslations():
     translations2 = [(t,codebyinfo[t[:3]][0],codebyinfo[t[:3]][1]) for t in translations]
     return render_template('list.html', translations = translations2)
     
-@parasite.route('/search/')
+@parasite.route('/search/',methods=['POST', 'GET'])
 def search():
 		g.full = ''
-		translations = sorted([f[:-4] for f in 
-		os.listdir(os.path.dirname(__file__) + '/static/files/textfiles/') 
-		if f[-4:] == ".txt"])
+		if request.method == "POST":
+			if request.form['target'] == "None":
+				return redirect('/search/' + request.form['source'] + '/' + request.form['query'] + '/')
+			else:
+				return redirect('/search/' + request.form['source'] + '/' + request.form['target'] + '/' + \
+				request.form['query'] + '/')
+		else:
+			translations = sorted([f[:-4] for f in 
+			os.listdir(os.path.dirname(__file__) + '/static/files/textfiles/') 
+			if f[-4:] == ".txt"])
+			
+			return render_template('search.html',translations=translations)
+			
+@parasite.route('/search/<text1>/<text2>/<query>/')
+def searchcompare(text1,text2,query):
+		query = query.replace('+',' ')
+		fh1 = codecs.open(os.path.dirname(__file__) + '/static/files/textfiles/' + text1 + '.txt','r','utf-8').readlines()
+		fh2 = codecs.open(os.path.dirname(__file__) + '/static/files/textfiles/' + text2 + '.txt','r','utf-8').readlines()
+		verses1 = [v.strip().split('\t') for v in fh1 if query in v and not v.strip().startswith('#')]
+		verseids = [v[0] for v in verses1]
+		verses2t = {v.split('\t')[0]:v.strip().split('\t')[1] for v in fh2 if v.strip()[:8] in verseids}
+		verses2 = list()
+		for v in verseids:
+			if v in verses2t:
+				verses2.append([v,verses2t[v]])
+			else:
+				verses2.append([v,''])
 		
-		return render_template('search.html',translations=translations)
+		return render_template("compare.html",query=query,verses=zip(verses1,verses2))
+		
+@parasite.route('/search/<text1>/<query>/')
+def searchresults(text1,query):
+		query = query.replace('+',' ')
+		fh1 = codecs.open(os.path.dirname(__file__) + '/static/files/textfiles/' + text1 + '.txt','r','utf-8').readlines()
+		verses1 = [v.strip().split('\t') for v in fh1 if query in v and not v.strip().startswith('#')]
+		
+		return render_template("searchresult.html",query=query,verses=verses1)
+		
     
 # /eng-x-bible-engkj-v0.zip/
 @parasite.route('/<translation>-v<translationversion>.zip')

@@ -1,0 +1,12 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1 id="page_title">Search results for "{{ query }}"</h1>
+<table border='0'>
+{% for verse in verses %}
+	<tr><td valign="top" align="right">{{ loop.index }})</td><td valign="top">{{ verse[0][0] }}</td><td>
+	{{ verse[0][1] }} </td></tr>
+	<tr><td></td>
+	<td valign="top">{{ verse[1][0] }}</td><td> {{ verse[1][1] }}</td></tr>
+{% endfor %}
+</table>
+{% endblock %}
