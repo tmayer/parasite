@@ -2,7 +2,7 @@
 {% block body %}
 <h1 id="page_title">
 	<a href="/{{ g.full }}{{ translation }}">{{ translation }}</a>
-	<a href="/{{ g.full }}{{ translation }}/{{ book }}/">{{ book }}</a>:{{ chapter }}
+	<a href="/{{ g.full }}{{ translation }}/{{ book }}/">{{ book }}</a> {{ chapter }}
 </h1>
 <table border='0'>
 {% for verse in verses %}
