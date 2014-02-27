@@ -4,7 +4,9 @@
     <meta charset="utf-8"> 
     <link rel="stylesheet" type="text/css" href="/static/style.css" />
     {% block robots %}
-    <meta name="robots" content="noindex,nofollow" />
+    {% if g.full != '' %}
+    	<meta name="robots" content="noindex,nofollow" />
+    {% endif %}
     {% endblock %}
     {% block includefiles %}
     {% endblock %}
