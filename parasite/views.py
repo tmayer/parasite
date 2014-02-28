@@ -4,6 +4,8 @@ from werkzeug.routing import BaseConverter
 import os
 import codecs
 import re
+import collections
+import json
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -20,6 +22,34 @@ full = 'full/' # URL for full access
 @parasite.route('/full/',defaults={'full': full})
 def index(full):
     g.full = full
+    
+    # create json file for map display
+    translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
+    	os.listdir(os.path.dirname(__file__) + '/static/files/textfiles/') 
+    	if f[-4:] == ".txt"}))
+    codesbytranslations = collections.defaultdict(list)
+    for t in translations:
+    	codesbytranslations[t[:3]].append(t)
+    fh = codecs.open(os.path.dirname(__file__) + '/static/data/lang_coords_all.txt','r','utf-8').readlines()
+    codebygeo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh[1:]}
+    
+    languages = list()
+    for c in codesbytranslations:
+    	currdict = dict()
+    	currinfo = codebygeo[c]
+    	currdict["latitude"] = currinfo[2]
+    	currdict["longitude"] = currinfo[1]
+    	currdict["name"] = currinfo[0]
+    	currdict["code"] = c
+    	currdict["texts"] = codesbytranslations[c]
+    	languages.append(currdict)
+    	
+    outdict = {"languages": languages}
+    	
+    oh = codecs.open(os.path.dirname(__file__) + '/static/data/languages.json','w','utf-8')
+    json.dump(outdict,oh)
+    oh.close()
+    
     return render_template('index.html')
     
 @parasite.route('/all/',defaults={'full': ''})
@@ -28,11 +58,12 @@ def listtranslations(full):
     g.full = full
     translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
 			os.listdir(os.path.dirname(__file__) + '/static/files/textfiles/') 
-			#os.listdir(url_for('static') + 'files/textfiles/')
 			if f[-4:] == ".txt"}))
-    fh = codecs.open(os.path.dirname(__file__) + '/static/data/codesfamilies.csv','r','utf-8').readlines()
+    fh = codecs.open(os.path.dirname(__file__) + '/static/data/lang2fam.csv','r','utf-8').readlines()
     codebyinfo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh}
-    translations2 = [(t,codebyinfo[t[:3]][0],codebyinfo[t[:3]][1]) for t in translations]
+    fh2 = codecs.open(os.path.dirname(__file__) + '/static/data/lang_coords_all.txt','r','utf-8').readlines()
+    codebygeo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh2[1:]}
+    translations2 = [(t,codebygeo[t[:3]][0],codebyinfo[t[:3]][0]) for t in translations]
     return render_template('list.html', translations = translations2)
     
 @parasite.route('/search/',methods=['POST', 'GET'],defaults={'full': ''})
