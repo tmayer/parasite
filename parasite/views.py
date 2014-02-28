@@ -112,7 +112,7 @@ def listtranslationversion(full,translation,translationversion):
 			books = []
 			if g.full != '':
 				books = sorted(list({l[:2] for l in fh if l[0] != "#" and re.match('\d{2}',l[:2])}))
-			info = [l[1:].split(":",1) for l in fh if l[0] == "#"]
+			info = [l[2:].split(":",1) for l in fh if l[0] == "#"]
 			return render_template('translation.html',translation=translation+ "-v" + translationversion,info=info,books=books)
 		except:
 			return render_template('error.html',error="Bible version not available")

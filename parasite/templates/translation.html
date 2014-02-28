@@ -1,25 +1,23 @@
 {% extends "layout.html" %}
 {% block body %}
+{% autoescape false %}
 <h1 id="page_title">{{ info[4][1] }} ({{ translation }})</h1>
-
-<h3>Project description:</h3>
-
-<p>
-
-</p>
+{% endautoescape %}
 
 <h3>Information on Bible translation:</h3>
 
 <table>
+{% autoescape false %}
 {% for inf in info %}
 	{% if inf[0] == "URL" %}
 		<tr><td valign="top" style='text-transform: capitalize;'>{{ inf[0] }}</td>
-		<td><a href='$inf[1]'>{{ inf[1] }}</a></td></tr>
+		<td><a href='{{ inf[1] }}'>{{ inf[1] }}</a></td></tr>
 	{% else %}
 		<tr><td valign="top" style='text-transform: capitalize;'>{{ inf[0] }}</td>
 		<td>{{ inf[1] }}</td></tr>
 	{% endif %}
 {% endfor %}
+{% endautoescape %}
 </table>
 
 <h3>Links: </h3>
