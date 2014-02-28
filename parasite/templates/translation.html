@@ -10,10 +10,10 @@
 {% autoescape false %}
 {% for inf in info %}
 	{% if inf[0] == "URL" %}
-		<tr><td valign="top" style='text-transform: capitalize;'>{{ inf[0] }}</td>
+		<tr><td valign="top" style='text-transform: capitalize;width: 150px;'>{{ inf[0] }}</td>
 		<td><a href='{{ inf[1] }}'>{{ inf[1] }}</a></td></tr>
 	{% else %}
-		<tr><td valign="top" style='text-transform: capitalize;'>{{ inf[0] }}</td>
+		<tr><td valign="top" style='text-transform: capitalize;'>{{ inf[0]|replace('_',' ') }}</td>
 		<td>{{ inf[1] }}</td></tr>
 	{% endif %}
 {% endfor %}
