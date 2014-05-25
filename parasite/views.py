@@ -12,7 +12,7 @@ class RegexConverter(BaseConverter):
         super(RegexConverter, self).__init__(url_map)
         self.regex = items[0]
 
-BASE_URL = ""
+BASE_URL = "data/"
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 TEXTFILES_FOLDER = BASE_PATH + '/static/files/textfiles/'
 DATA_FOLDER = BASE_PATH + '/static/data/'
@@ -90,9 +90,9 @@ def search(full):
 		g.full = full
 		if request.method == "POST":
 			if request.form['target'] == "None":
-				return redirect(BASE_URL + g.full + 'search/' + request.form['source'] + '/' + request.form['query'] + '/')
+				return redirect('/' + BASE_URL + g.full + 'search/' + request.form['source'] + '/' + request.form['query'] + '/')
 			else:
-				return redirect(BASE_URL + g.full + 'search/' + request.form['source'] + '/' + request.form['target'] + '/' + \
+				return redirect('/' + BASE_URL + g.full + 'search/' + request.form['source'] + '/' + request.form['target'] + '/' + \
 				request.form['query'] + '/')
 		else:
 			translations = sorted([f[:-4] for f in 
@@ -160,7 +160,8 @@ def listtranslation(full,translation):
 def listtranslationversion(full,translation,translationversion):
 		g.full = full
 		g.baseurl = BASE_URL
-		try:
+		#try:
+		if True:
 			fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + "-v" + translationversion + '.txt',
 			'r','utf-8').readlines()
 			books = []
@@ -172,8 +173,8 @@ def listtranslationversion(full,translation,translationversion):
 			return render_template('translation.html',
 			translation=translation,info=info,books=books,urls=urls,
 			translationversion=translation+ "-v" + translationversion,version=translationversion)
-		except:
-			return render_template('error.html',error="Bible version not available")
+		#except:
+		#	return render_template('error.html',error="Bible version not available")
 	
 
 # /eng-x-bible-engkj-v0/41/		
@@ -254,7 +255,7 @@ def listverseflat(full,translation,verse):
 def textfilefull(translation,translationversion):
 		g.full = full
 		g.baseurl = BASE_URL
-		return redirect('/static/files/textfiles/' + translation + "-v" + translationversion + '.txt')
+		return redirect('/' + g.baseurl + 'static/files/textfiles/' + translation + "-v" + translationversion + '.txt')
 
 if __name__ == "__main__":
     app.run(debug=True)
