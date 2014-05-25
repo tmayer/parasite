@@ -1,8 +1,14 @@
-<!DOCTYPE html> 
-<head> 
-	<title>Parallel Bible Corpus</title>  
-    <meta charset="utf-8"> 
-    <link rel="stylesheet" type="text/css" href="/static/style.css" />
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Parallel Bible Corpus</title>
+    
     {% block robots %}
     {% if g.full != '' %}
     	<meta name="robots" content="noindex,nofollow" />
@@ -11,102 +17,74 @@
     {% block includefiles %}
     {% endblock %}
 
-		
-		
-		<style> 
-			.background {
-			  fill: none;
-			  pointer-events: all;
-			}
-		</style> 
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static', filename = 'dist/css/bootstrap.css') }}" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="{{ url_for('static', filename = 'dist/css/bootstrap-theme.css') }}" rel="stylesheet">
 
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static', filename = 'dist/css/theme.css') }}" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'style.css') }}" />
 
-    
-</head> 
-<body> 
-    
-	<div style="position: fixed; top: 20px; ">
-		<div style="background-color: #F3F3F3;
-			background-image:url(/static/images/page-fade.png); 
-			background-repeat: repeat-x; width: 160px;
-			border-right: thin solid #C0C0C0;" >
-	
-			<div style="position: relative; left: 11px; top: -6px;" >
-				<img src="/static/images/PllT_trans.png">
-			</div>
-		</div>
-	
-		<div style="background-color: #F3F3F3;
-			background-image:url(/static/images/page-fade-down.png); 
-			background-repeat: repeat-x; 
-			background-position:bottom; 
-			width: 160px;
-			border-right: thin solid #C0C0C0; 
-			padding-bottom: 30px;">
-			&nbsp;
-			
-			<div style="position: relative; left: 10px; margin-top: -20px;">
-				<ul id="nav">
-					<li class="data">
-						<a href="/{{ g.full }}" title="Parallel Bible Corpus">
-						Parallel Bible Corpus</a>
-					</li>
-					<li class="data">
-						<a href="/{{ g.full }}all/" 
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body role="document">
+
+    <!-- Fixed navbar -->
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="{{ url_for('.index', full=g.full) }}">Parallel Bible Corpus</a>
+        </div>
+        <div class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li><a href="{{ url_for('.index', full=g.full) }}" title="Parallel Bible Corpus">
+						Map</a></li>
+            <li><a href="{{ url_for('.listtranslations', full=g.full) }}" 
 						title="Parallel Bible Corpus">
 						List of all translations
-						</a>
-					</li>
-					<li class="data">
-						<a href="/{{ g.full }}search/" 
+						</a></li>
+            <li><a href="{{ url_for('.search', full=g.full) }}" 
 						title="Parallel Bible Corpus">
 						Search
-						</a>
-					</li>
-					<li class="current  index">
-						<a href="http://paralleltext.info/" title="Parallel Text Website">
+						</a></li>
+			<li>
+			<a href="http://paralleltext.info/" title="Parallel Text Website">
 						Paralleltext.info</a>
-					</li>
-				</ul>
-	
-				<div style="position:relative; margin: 10 auto; ">
-					<a href="http://www.uni-marburg.de/">
-					<img src="/static/images/PhUniMa_Logo_sw.svg" width="140">
-					</a><br><br>
-					<a href="http://www.dfg.de"><img src="/static/images/dfg_logo_schriftzug_schwarz.png" width="140">
-					</a>
-	
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end navigation bar -->
-	
-	<div id="window" style="position:absolute; left: 160px; top: 10px;">
-		<div id="container">
-			<div id="main">
-				<div id="outer-prettification">
-					<div id="inner-prettification">
-						<div id="header">
-	
-							<h1 id="title"><a href=""></a></h1>
-	
-						</div>
-						<div id="contents">
-							{% block body %}{% endblock %}
-	
-						</div>
-						<div id="footer">
-							<p> <a href="http://paralleltext.info">paralleltext.info</a></p>
-	
-							<!-- You can do whatever you like here -->
-	
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
+			</li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
 
-</body>
+    <div class="container theme-showcase" role="main">
+
+      <!-- Main jumbotron for a primary marketing message or call to action -->
+      <div class="jumbotron">
+        <p>
+        {% block body %}{% endblock %}
+        </p>
+      </div>
+
+    </div> <!-- /container -->
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+  </body>
 </html>

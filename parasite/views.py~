@@ -160,7 +160,8 @@ def listtranslation(full,translation):
 def listtranslationversion(full,translation,translationversion):
 		g.full = full
 		g.baseurl = BASE_URL
-		try:
+		#try:
+		if True:
 			fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + "-v" + translationversion + '.txt',
 			'r','utf-8').readlines()
 			books = []
@@ -172,8 +173,8 @@ def listtranslationversion(full,translation,translationversion):
 			return render_template('translation.html',
 			translation=translation,info=info,books=books,urls=urls,
 			translationversion=translation+ "-v" + translationversion,version=translationversion)
-		except:
-			return render_template('error.html',error="Bible version not available")
+		#except:
+		#	return render_template('error.html',error="Bible version not available")
 	
 
 # /eng-x-bible-engkj-v0/41/		
@@ -254,7 +255,7 @@ def listverseflat(full,translation,verse):
 def textfilefull(translation,translationversion):
 		g.full = full
 		g.baseurl = BASE_URL
-		return redirect('/static/files/textfiles/' + translation + "-v" + translationversion + '.txt')
+		return redirect('static/files/textfiles/' + translation + "-v" + translationversion + '.txt')
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -11,7 +11,15 @@
 {% for inf in info %}
 	{% if inf[0] == "URL" %}
 		<tr><td valign="top" style='text-transform: capitalize;width: 150px;'>{{ inf[0] }}</td>
-		<td><a href='{{ inf[1] }}'>{{ inf[1] }}</a></td></tr>
+		<td>
+		{% if inf[1] == "Not available" %}
+        Not available
+        {% else %}
+            {% for url in urls %}
+                <a href='{{ url }}'>{{ url }}</a><br>
+            {% endfor %}
+        {% endif %}
+		</td></tr>
 	{% else %}
 		<tr><td valign="top" style='text-transform: capitalize;'>{{ inf[0]|replace('_',' ') }}</td>
 		<td>{{ inf[1] }}</td></tr>
@@ -23,20 +31,18 @@
 <h3>Links: </h3>
 <ul>
 	{% if books|length == 0 %}
-		<li><a href='/{{ g.full }}{{ translation }}/41/'>sample text (Gospel according to Mark)</a></li>
-		<li><a href='/{{ g.full }}{{ translation }}.zip'>zip data package</a></li>
+		<li><a href='{{ url_for('.listbook',full=g.full,translation=translationversion,book=41) }}'>sample text (Gospel according to Mark)</a></li>
+		<li><a href='{{ url_for('.zipfile',translation=translation,translationversion=version) }}'>zip data package</a></li>
 	{% else %}
 		<li>Available books: <br>
 		{% for book in books %}
+			<a href='{{ url_for('.listbook',full=g.full,translation=translationversion,book=book) }}'> {{ book }} </a> |
 			{% if loop.index % 10 == 0 %}
-				<a href='/{{ g.full }}{{ translation }}/{{ book }}/'> {{ book }} </a> |
 				<br>
-			{% else %}
-				<a href='/{{ g.full }}{{ translation }}/{{ book }}/'> {{ book }} </a> |
 			{% endif %}
 		{% endfor %}
 		</li>
-		<li><a href='/{{ g.full }}{{ translation }}.txt'>text file</a></li>
+		<li><a href='{{ url_for('.textfilefull',translation=translation,translationversion=version) }}'>text file</a></li>
 	{% endif %}
 </ul>
 {% endblock %}

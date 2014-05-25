@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 <h1 id="page_title">{{ verses|length }} search results for "{{ query }}"</h1>
-<table border='0'>
+<table border='0' class="tablelisting">
 {% for verse in verses %}
 	<tr><td valign="top" align="right">{{ loop.index }})</td><td valign="top">{{ verse[0] }}</td><td>
 	{{ verse[1] }} </td></tr>

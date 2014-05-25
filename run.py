@@ -1,6 +1,6 @@
 #!flask/bin/python
-from parasite import parasite
+from parasite import app
 
 
 
-parasite.run(debug = True)
+app.run(debug = True)

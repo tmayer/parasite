@@ -1,16 +1,16 @@
 {% extends "layout.html" %}
 {% block body %}
-<form method="post" action="/{{ g.full }}search/">
+<form method="post" action="{{ url_for('.search',full=g.full) }}">
 	<table border="0">
 	<tr><td>
-	<label>Search</label></td>
+	<label>Search for</label></td>
 	<td>
-	<input type="text" name="query" size="50">
+	<input type="text" name="query" size="50" class="form-control">
 	</td></tr>
 	<tr><td>
 	<label>in</label>
 	</td><td>
-    <select name="source" size="1">
+    <select name="source" size="1"  class="form-control">
     {% for translation in translations %}
     	<option>{{ translation }}</option>
     {% endfor %}
@@ -19,14 +19,14 @@
     <tr><td>
     <label>compare with</label>
     </td><td>
-    <select name="target" size="1">
+    <select name="target" size="1"  class="form-control">
     	<option>None</option>
     {% for translation in translations %}
     	<option>{{ translation }}</option>
     {% endfor %}
     </select>
 	</td></tr>
-	<tr><td></td><td><input type="submit" value="Show results"></td></tr>
+	<tr><td></td><td><input type="submit" value="Show results" class="btn btn-default"></td></tr>
 	</table>
 </form>
 {% endblock %}
