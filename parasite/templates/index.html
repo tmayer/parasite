@@ -64,14 +64,19 @@
 <script type="text/javascript">
 
     // size of svg 
-    var width = 800, height = 400;
+    var width = 0.8 * $(document).width();
+    var height = 0.35 * $(document).width();
+    console.log(width, height);
     var radSmall = 3;
     var radFocus = 5;
     var scaleFactor = 1;
+    var mapscale = width/7.5;
+    console.log(mapscale);
     // projection settings 
     var projection = d3.geo.equirectangular() 
-        .center([38, -25 ]) 
-        .scale(120)
+        //.center([38, -25 ]) 
+        .translate([mapscale*3.3,mapscale*1.8])
+        .scale(mapscale)
         ;
     // boolean free variable for freezing info box
     var freeze = false;

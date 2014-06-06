@@ -12,7 +12,7 @@ class RegexConverter(BaseConverter):
         super(RegexConverter, self).__init__(url_map)
         self.regex = items[0]
 
-BASE_URL = "data/"
+BASE_URL = ""
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 TEXTFILES_FOLDER = BASE_PATH + '/static/files/textfiles/'
 DATA_FOLDER = BASE_PATH + '/static/data/'
@@ -81,7 +81,7 @@ def listtranslations(full):
     codebyinfo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh}
     fh2 = codecs.open(app.config['DATA_FOLDER'] + 'lang_coords_all.txt','r','utf-8').readlines()
     codebygeo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh2[1:]}
-    translations2 = [(t,codebygeo[t[:3]][0],codebyinfo[t[:3]][0]) for t in translations]
+    translations2 = [(t,codebygeo[t[:3]][0],codebyinfo[t[:3]][1]) for t in translations]
     return render_template('list.html', translations = translations2)
     
 @app.route('/search/',methods=['POST', 'GET'],defaults={'full': ''})
@@ -108,17 +108,22 @@ def searchcompare(full,text1,text2,query):
 		query = query.replace('+',' ')
 		fh1 = codecs.open(app.config['TEXTFILES_FOLDER'] + text1 + '.txt','r','utf-8').readlines()
 		fh2 = codecs.open(app.config['TEXTFILES_FOLDER'] + text2 + '.txt','r','utf-8').readlines()
-		verses1 = [v.strip().split('\t') for v in fh1 if query in v and not v.strip().startswith('#')]
-		verseids = [v[0] for v in verses1]
-		verses2t = {v.split('\t')[0]:v.strip().split('\t')[1] for v in fh2 if v.strip()[:8] in verseids}
+		verses1 = {v.split('\t')[0]:v.split('\t')[1].strip() for v in fh1 
+		    if query in v and not v.strip().startswith('#')}
+		verseids = verses1.keys()
+		verses2t = {v.split('\t')[0]:v.split('\t')[1].strip() for v in fh2 if v.strip()[:8] in verseids}
 		verses2 = list()
+		verses1rel = list()
 		for v in verseids:
 			if v in verses2t:
 				verses2.append([v,verses2t[v]])
-			else:
-				verses2.append([v,''])
+				verses1rel.append([v,verses1[v]])
+				
+		textname1 = text1[:3]
+		textname2 = text2[:3]
 		
-		return render_template("compare.html",query=query,verses=zip(verses1,verses2))
+		return render_template("compare.html",query=query,verses=zip(verses1rel,verses2),
+		    text1=textname1,text2=textname2)
 		
 @app.route('/search/<text1>/<query>/',defaults={'full': ''})
 @app.route('/full/search/<text1>/<query>/',defaults={'full': full})

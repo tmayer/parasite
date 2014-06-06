@@ -15,6 +15,5 @@ body {
 
 .jumbotron {
   padding-top: 10px;
-  min-width: 800px;
   border: thin solid #ccc;
 }
