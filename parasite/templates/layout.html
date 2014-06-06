@@ -14,8 +14,11 @@
     	<meta name="robots" content="noindex,nofollow" />
     {% endif %}
     {% endblock %}
+    
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
     {% block includefiles %}
     {% endblock %}
+
 
     <!-- Bootstrap core CSS -->
     <link href="{{ url_for('static', filename = 'dist/css/bootstrap.css') }}" rel="stylesheet">
@@ -78,6 +81,11 @@
         <p>
         {% block body %}{% endblock %}
         </p>
+      </div>
+      
+      <div class="footer">
+      The Parallel Bible Corpus is maintained by Thomas Mayer and Michael Cysouw
+      within the Paralleltext.info project.
       </div>
 
     </div> <!-- /container -->
