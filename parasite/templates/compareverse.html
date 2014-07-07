@@ -1,0 +1,279 @@
+{% extends "layout.html" %}
+{% block includefiles %}
+        <script src="{{ url_for('static', filename='d3/d3.min.js') }}" charset="utf-8"></script>
+{% endblock %}
+{% block body %}
+<h1 id="page_title">Comparison</h1>
+
+
+<script>
+var words1 = [{% for w in words1 %}"{{ w }}",{% endfor %}];
+var words2 = [{% for w in words2 %}"{{ w }}",{% endfor %}];
+var words12 = {{ words12 }};
+var words21 = {{ words21 }};
+var alignment = {{ alignment }};
+</script>
+
+<div id='sent'></div>
+
+<div id='vis'></div>
+
+<script>
+      //height of each row in the heatmap
+      var h = 20;
+      //width of each column in the heatmap
+      var w = 20;
+      // margin top
+      var margin_top = 5 * h;
+      // margin left
+      var margin_left = 5 * w;
+
+
+//define a color scale using the min and max expression values
+var colorScale = d3.scale.linear()
+//.domain([minData, 0, maxData])
+//.range(["red", "white", "blue"]);
+.range(["white","#428bca"]);
+
+var colorScaleHi = d3.scale.linear()
+        .range(["white","#428bca"]);
+// plot sentences
+        
+        // sentence 1
+    
+        var sent1 = d3.select('#sent')
+            .append('div')
+            .attr('class','sent1')
+            .style('margin-bottom','10px')
+            .style('width','750px')
+            .selectAll('span')
+            .data(words1)
+            .enter().append('span')
+            .text(function(d,i){return " " + words1[i] + " ";})
+            .style("margin","2px")
+            .attr('class',function(d,i){return 'words1_' + i;})
+            ;
+            
+        // sentence 2
+        
+        var sent2 = d3.select('#sent')
+            .style('margin-bottom','10px')
+            .append('div')
+            .attr('class','sent2')
+            .style('width','750px')
+            .selectAll('span')
+            .data(words2)
+            .enter().append('span')
+            .text(function(d,i){return " " + words2[i] + " ";})
+            .style("margin","2px")
+            .attr('class',function(d,i){return 'words2_' + i;})
+            //.style('background-color','green')
+            ;
+
+        // add event listenener to words in sentences
+
+        // sentence 1
+          
+        d3.selectAll('.sent1')
+            .selectAll('span')
+            .data(words21)
+            .style('cursor','pointer')
+            .on('mouseover',function(d,i){
+                colorScaleHi.domain([d3.min(d),d3.max(d)])
+                for(var m=0;m<d.length;m++){
+                    d3.select('span.words2_' + m)
+                        .style('background-color',function(){return colorScaleHi(d[m]);})
+                    ;
+                }
+                
+                })
+            ;
+            
+            
+        d3.selectAll('.sent1')
+            .selectAll('span')
+            .data(words21)
+            .on('mouseout',function(d,i){
+                for(var m=0;m<d.length;m++){
+                    d3.select('span.words2_' + m)
+                        .style('background-color','transparent')
+                    ;
+                }
+                
+                })
+            ;
+            
+            
+         // sentence 2
+         
+        d3.selectAll('.sent2')
+            .selectAll('span')
+            .data(words12)
+            .style('cursor','pointer')
+            .on('mouseover',function(d,i){
+                colorScaleHi.domain([d3.min(d),d3.max(d)])
+                for(var m=0;m<d.length;m++){
+                    d3.select('span.words1_' + m)
+                        .style('background-color',function(){return colorScaleHi(d[m]);})
+                    ;
+                }
+                
+                })
+            ;
+            
+            
+        d3.selectAll('.sent2')
+            .selectAll('span')
+            .data(words12)
+            .on('mouseout',function(d,i){
+                for(var m=0;m<d.length;m++){
+                    d3.select('span.words1_' + m)
+                        .style('background-color','transparent')
+                    ;
+                }
+                
+                })
+            ;  
+
+     //attach a SVG element to the document's body
+      var mySVG = d3.select("#vis")
+         .append("svg")
+         .attr("width", (w * words2.length) + margin_left + 10) 
+         .attr("height", (h * words1.length + margin_top + 10))
+         .style('position','relative')
+         .style('top',0)
+         .style('left',0);
+
+
+
+      //generate heatmap rows
+      var alignmentTransposed = alignment[0].map(function (_, c) { return alignment.map(function (r) { return r[c]; }); });
+
+
+      var heatmapRow = mySVG.selectAll(".heatmap")
+         .data(alignment)
+         .enter().append("g")
+
+      //generate heatmap columns
+      var heatmapRects = heatmapRow
+         .selectAll(".rect")
+         .data(function(d,i) {
+            /*
+            console.log(values,min,max);
+            colorScale.domain([min,max]);
+            colorScaleHi.domain([min,max]);
+            */
+            return d;
+         }).enter().append("svg:rect")
+         .attr('width',w)
+         .attr('height',h)
+         .attr('x', function(d) {
+            return (d[2] * w) + margin_left;
+         })
+         .attr('y', function(d) {
+            return (d[1] * h) + margin_top;
+         })
+         .style('fill',function(d,i) {
+            /*
+            var values = alignment[currRow].map(function(f){ return f[0];});
+            //console.log(values);
+            max = d3.max(values);
+            min = d3.min(values);
+            colorScale.domain([d3.min(values),d3.max(values)]);
+            */
+            //console.log(alignment[i]);
+            var values = alignmentTransposed[i].map(function(f){ return f[0];});
+            colorScale.domain([d3.min(values),d3.max(values)]);
+            return colorScale(d[0]);
+         })
+         .style('cursor',function(d){if (d[0] > 0){return 'pointer';}})
+         .style('stroke','black')
+         .on("mouseover",function(d){d3.select('rect.rowlabel_' + d[1]).style("fill",'#428bca');
+             d3.select('text.rowlabelText_' + d[1]).style("fill",'white');
+             d3.select('rect.collabel_' + d[2]).style("fill",'#428bca');
+             d3.select('text.collabelText_' + d[2]).style("fill",'white');
+             //d3.select(this).style('fill',function(d) {
+            //return colorScaleHi(d[0]);})
+            ;})
+         .on("mouseout",function(d){d3.select('rect.rowlabel_' + d[1]).style("fill",'none');
+             d3.select('text.rowlabelText_' + d[1]).style("fill",'black');
+             d3.select('rect.collabel_' + d[2]).style("fill",'none');
+             d3.select('text.collabelText_' + d[2]).style("fill",'black');
+             d3.select(this).style('stroke','black')
+             //d3.select(this).style('fill',function(d) {
+            //return colorScale(d[0]);})
+            ;})
+         .append("title")
+         .text(function(d,i){
+
+            var values = alignmentTransposed[i].map(function(f){ return f[0];});
+            
+            return words1[d[1]] + " => " + words2[d[2]] + " [" 
+            + Math.round(d[0]*100)/100 + "]" + d3.min(values) + "|" + d3.max(values);
+            ;})
+         ;
+         
+      // Background label columns
+      var columnLabel = mySVG.selectAll(".colLabel")
+         .data(words2)
+         .enter().append('svg:rect')
+         .attr('width',w)
+         .attr('height',8 * w)
+         .attr('x', function(d,i) {
+            return ((i + 0.5) * w) + margin_left - 0.5 * w;
+         })
+         .attr('y', margin_top - 8 * w)
+         .attr('class',function(d,i){return 'collabel_' + i;})
+         .style('fill','none')
+         ;
+         
+      // Background label rows
+      var rowLabel = mySVG.selectAll(".rowLabel")
+         .data(words1)
+         .enter().append('svg:rect')
+         .attr('width',8 * w)
+         .attr('height',h)
+         .attr('y', function(d,i) {
+            return ((i + 0.5) * w) + margin_top - 0.5 * h;
+         })
+         .attr('x', margin_left - 8 * w)
+         .attr('class',function(d,i){return 'rowlabel_' + i;})
+         .style('text-anchor','end')
+         .style('fill','none');
+         
+         
+         
+      //label columns
+      var columnLabel = mySVG.selectAll(".colLabelText")
+         .data(words2)
+         .enter().append('svg:text')
+         
+         .attr('x', function(d,i) {
+            //return ((i + 0.5) * w) - 0.7 * w;
+            return ((i + 0.5) * w + 1.01*margin_left) ;
+         })
+         .attr('y', 0.98*margin_top )
+         
+         .attr('class',function(d,i){return 'collabelText_' + i;})
+         .style('font-size',function(){return h/2 + 'pt';})
+         .attr("transform", function(d,i) { return "rotate(-90," + (((i + 0.5) * w) + 1.01*margin_left ) + "," + 0.96 * margin_top + ")"; })
+         .text(function(d) {return d;});
+         
+      //label rows
+      var rowLabel = mySVG.selectAll(".rowLabelText")
+         .data(words1)
+         .enter().append('svg:text')
+         .attr('y', function(d,i) {
+            return ((i + 0.5) * w) + margin_top + 0.2 * h;
+         })
+         .attr('x', margin_left - 0.3 * w)
+         .attr('class',function(d,i){return 'rowlabelText_' + i;})
+         .style('font-size',function(){return h/2 + 'pt';})
+         .style('text-anchor','end')
+         .text(function(d) {return d;});
+         
+         
+         
+</script>
+
+{% endblock %}

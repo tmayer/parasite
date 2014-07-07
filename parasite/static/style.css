@@ -239,8 +239,19 @@ span.active {
 	text-shadow: 0px 2px 2px #666;
 }
 
-.tablelisting tr:nth-child(even) {background: #cccccc}
-.tablelisting tr:nth-child(odd) {background: none}
+.separator td{
+    background-color: black;
+}
+
+.tablecomparison, .tablecomparison td {
+    border-radius: 5px;
+    border: thin solid #ccc;
+}
+
+.tablecomparison .translation td{
+    background-color: white;
+    border-bottom: 2px solid black;
+}
 
 .infobox tr {background: none;}
 
