@@ -275,21 +275,23 @@ def compare(full,translation1,translation2,verse):
     g.baseurl = BASE_URL
     text1 = reader.ParText(app.config['TEXTFILES_FOLDER'] + translation1 + '.txt')
     text2 = reader.ParText(app.config['TEXTFILES_FOLDER'] + translation2 + '.txt')
+    raw_words1 = text1.get_raw_verses()[int(verse)]
+    raw_words2 = text2.get_raw_verses()[int(verse)]
     poisson = cooccurrence.Cooccurrence(text1,text2,method="poisson")
     verse1 = text1[int(verse)]
     verse2 = text2[int(verse)]
-    #for word1 in verse1:
-    #    for word2 in verse2:
-    #        poisson.get_assoc(word1,word2)
-    words12 = [[poisson.get_assoc(w1,w2) for w1 in verse1] for w2 in verse2]
-    words21 = [[poisson.get_assoc(w1,w2) for w2 in verse2] for w1 in verse1]
-    words1 = verse1 #"['" + "','".join(verse1) + "']"
-    words2 = verse2 # "['" + "','".join(verse2) + "']"
+    #words12 = [[poisson.get_assoc(w1,w2) for w1 in verse1] for w2 in verse2]
+    #words21 = [[poisson.get_assoc(w1,w2) for w2 in verse2] for w1 in verse1]
+    words12 = [[poisson.get_assoc(w1.lower(),w2.lower()) for w1 in raw_words1] for w2 in raw_words2]
+    words21 = [[poisson.get_assoc(w1.lower(),w2.lower()) for w2 in raw_words2] for w1 in raw_words1]
+    words1 = raw_words1 #verse1 
+    words2 = raw_words2 #verse2 
 
-    alignment = [[[poisson.get_assoc(w1,w2),c1,c2] for c1,w1 in enumerate(verse1)] for c2,w2 in enumerate(verse2)]
+    alignment = [[[poisson.get_assoc(w1.lower(),w2.lower()),c1,c2] for c1,w1 in enumerate(raw_words1)] for c2,w2 in enumerate(raw_words2)]
 
     return render_template('compareverse.html',words1=words1,words2=words2,
-        words12=str(words12),words21=str(words21),alignment=str(alignment))
+        words12=str(words12),words21=str(words21),alignment=str(alignment),
+        verse=verse,translation1=translation1,translation2=translation2)
 
 if __name__ == "__main__":
     app.run(debug=True)

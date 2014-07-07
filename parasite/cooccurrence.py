@@ -136,13 +136,13 @@ class Cooccurrence():
         try:
             index1 = self.wfdict1[word1]
         except KeyError as k:
-            print("The word {} does not occur in text 1.".format(k))
-            return
+            #print("The word {} does not occur in text 1.".format(k))
+            return 0
         try:
             index2 = self.wfdict2[word2]
         except KeyError as k:
-            print("The word {} does not occur in text 2.".format(k))
-            return
+            #print("The word {} does not occur in text 2.".format(k))
+            return 0
         return self.assoc[index1,index2]
 
     def get_max(self,word1):

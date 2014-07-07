@@ -3,7 +3,11 @@
         <script src="{{ url_for('static', filename='d3/d3.min.js') }}" charset="utf-8"></script>
 {% endblock %}
 {% block body %}
-<h1 id="page_title">Comparison</h1>
+<h1 id="page_title">Comparison of {{ verse }} for <br>
+<a href="{{ url_for('.listtranslation',full=g.full,translation=translation1) }}">
+    {{ translation1 }}</a> and <br>
+<a href="{{ url_for('.listtranslation',full=g.full,translation=translation2) }}">
+{{ translation2 }}</a></h1>
 
 
 <script>
@@ -14,7 +18,15 @@ var words21 = {{ words21 }};
 var alignment = {{ alignment }};
 </script>
 
-<div id='sent'></div>
+<div id='sent1'>
+<a href="{{ url_for('.listtranslation',full=g.full,translation=translation1) }}">
+    <kbd>{{ translation1 }}</kbd>
+</a></div>
+
+<div id='sent2'>
+<a href="{{ url_for('.listtranslation',full=g.full,translation=translation2) }}">
+    <kbd>{{ translation2 }}</kbd>
+</a></div>
 
 <div id='vis'></div>
 
@@ -41,7 +53,7 @@ var colorScaleHi = d3.scale.linear()
         
         // sentence 1
     
-        var sent1 = d3.select('#sent')
+        var sent1 = d3.select('#sent1')
             .append('div')
             .attr('class','sent1')
             .style('margin-bottom','10px')
@@ -56,7 +68,7 @@ var colorScaleHi = d3.scale.linear()
             
         // sentence 2
         
-        var sent2 = d3.select('#sent')
+        var sent2 = d3.select('#sent2')
             .style('margin-bottom','10px')
             .append('div')
             .attr('class','sent2')

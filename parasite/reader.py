@@ -39,6 +39,12 @@ class ParText():
         
         # open file
         fh = codecs.open(filename,'r',encoding=enc).readlines()
+
+        self.raw_verses = [(int(items[0].strip()),items[1].strip().split()) 
+            for line in fh
+            for items in [line.split(sep,1)]
+            if not line.strip().startswith(commentmarker)
+            if int(line.strip()[:2]) in portions]
         
         # clean up all punctuation marks TODO: find a better method to remove all non-letters!
         pat = re.compile("[“”‘’`´“”‘’`´‚<>.;,:?¿‹›!()\[\]—\"„§$%&\/\=_{}]") 
@@ -58,6 +64,10 @@ class ParText():
         """Returns the text of the verse given by the verse id.
         """
         return self.versedict[id]
+
+    def get_raw_verses(self):
+
+        return {v[0]:v[1] for v in self.raw_verses}
         
     def __len__(self):
         """Returns the length of the parallel text in number of verses.
