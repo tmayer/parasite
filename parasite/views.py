@@ -8,21 +8,20 @@ import collections
 import json
 import reader, cooccurrence
 
+# Use the RegexConverter function as a converter
+# method for mapped urls
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
         super(RegexConverter, self).__init__(url_map)
         self.regex = items[0]
 
+# Defining some constants for handling relative URLs on the server
 BASE_URL = ""
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 TEXTFILES_FOLDER = BASE_PATH + '/static/files/textfiles/'
 DATA_FOLDER = BASE_PATH + '/static/data/'
 ZIPFILES_FOLDER = BASE_PATH + '/static/files/zipfiles/'
-#TEXTFILES_FOLDER = '/var/www/paralleltext.info/flask/parasite/static/files/textfiles'
-#DATA_FOLDER = '/var/www/paralleltext.info/flask/parasite/static/data/'
 
-# Use the RegexConverter function as a converter
-# method for mapped urls
 app = Flask(__name__,static_url_path='/static', static_folder = "static")
 app.debug = True
 app.config['TEXTFILES_FOLDER'] = TEXTFILES_FOLDER
@@ -30,16 +29,13 @@ app.config['ZIPFILES_FOLDER'] = ZIPFILES_FOLDER
 app.config['DATA_FOLDER'] = DATA_FOLDER
 app.url_map.converters['regex'] = RegexConverter
 
-
+# URL path for displaying all data
 full = 'full/' # URL for full access
 
 @app.route('/',defaults={'full': ''})
 @app.route('/full/',defaults={'full': full})
 def index(full):
     g.full = full
-
-    #abspath = app.config['TEXTFILES_FOLDER']
-    #return render_template("error.html",error=abspath)
     
     # create json file for map display
     translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
