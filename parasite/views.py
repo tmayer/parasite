@@ -8,8 +8,7 @@ import collections
 import json
 import reader, cooccurrence
 
-# Use the RegexConverter function as a converter
-# method for mapped urls
+# Use the RegexConverter function as a converter method for mapped urls
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
         super(RegexConverter, self).__init__(url_map)
@@ -35,16 +34,24 @@ full = 'full/' # URL for full access
 @app.route('/',defaults={'full': ''})
 @app.route('/full/',defaults={'full': full})
 def index(full):
+    """
+    URL: /
+    Preprocesses all textfiles in the folder and gathers all information
+    for the languages that are included in that folder so that all 
+    translations will be shown on the world map.
+    """
     g.full = full
     
-    # create json file for map display
+    # gather information for json file for map display with geo coords 
+    # for all languages
     translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
         os.listdir(app.config['TEXTFILES_FOLDER']) 
         if f[-4:] == ".txt"}))
     codesbytranslations = collections.defaultdict(list)
     for t in translations:
         codesbytranslations[t[:3]].append(t)
-    fh = codecs.open(app.config['DATA_FOLDER'] + 'lang_coords_all.txt','r','utf-8').readlines()
+    fh = codecs.open(app.config['DATA_FOLDER'] + 
+        'lang_coords_all.txt','r','utf-8').readlines()
     codebygeo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh[1:]}
     
     languages = list()
@@ -60,6 +67,7 @@ def index(full):
         
     outdict = {"languages": languages}
         
+    # create json file
     oh = codecs.open(app.config['DATA_FOLDER'] + 'languages.json','w','utf-8')
     json.dump(outdict,oh)
     oh.close()
@@ -69,79 +77,136 @@ def index(full):
 @app.route('/all/',defaults={'full': ''})
 @app.route('/full/all/',defaults={'full': full})
 def listtranslations(full):
+    """
+    URL: /all/
+    Gathers all translations from the textfile folder and gets the information
+    about their genealogy to be shown in the tabular representation.
+    """
     g.full = full
     g.baseurl = BASE_URL
     translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
             os.listdir(app.config['TEXTFILES_FOLDER']) 
             if f[-4:] == ".txt"}))
-    fh = codecs.open(app.config['DATA_FOLDER'] + 'lang2fam.csv','r','utf-8').readlines()
+
+    # get genealogy
+    fh = codecs.open(app.config['DATA_FOLDER'] 
+        + 'lang2fam.csv','r','utf-8').readlines()
     codebyinfo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh}
-    fh2 = codecs.open(app.config['DATA_FOLDER'] + 'lang_coords_all.txt','r','utf-8').readlines()
+
+    # get language name
+    fh2 = codecs.open(app.config['DATA_FOLDER'] 
+        + 'lang_coords_all.txt','r','utf-8').readlines()
     codebygeo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh2[1:]}
-    translations2 = [(t,codebygeo[t[:3]][0],codebyinfo[t[:3]][1]) for t in translations]
+
+    # combine everything for the tabular representation
+    translations2 = [(t,codebygeo[t[:3]][0],
+        codebyinfo[t[:3]][1]) for t in translations]
+
     return render_template('list.html', translations = translations2)
     
 @app.route('/search/',methods=['POST', 'GET'],defaults={'full': ''})
 @app.route('/full/search/',methods=['POST', 'GET'],defaults={'full': full})
 def search(full):
-        g.full = full
-        if request.method == "POST":
-            if request.form['target'] == "None":
-                return redirect('/' + BASE_URL + g.full + 'search/' + request.form['source'] + '/' + request.form['query'] + '/')
-            else:
-                return redirect('/' + BASE_URL + g.full + 'search/' + request.form['source'] + '/' + request.form['target'] + '/' + \
-                request.form['query'] + '/')
+    """
+    URL: /search/
+    Provides either search form with all translations with GET or redirects
+    to the respective GET search URL with POST
+    """
+    g.full = full
+
+    # for POST redirect to respective GET URL
+    if request.method == "POST":
+        if request.form['target'] == "None":
+            return redirect('/' + BASE_URL + g.full + 'search/' 
+                + request.form['source'] + '/' 
+                + request.form['query'] + '/')
         else:
-            translations = sorted([f[:-4] for f in 
-            os.listdir(app.config['TEXTFILES_FOLDER']) 
-            if f[-4:] == ".txt"])
-            
-            return render_template('search.html',translations=translations)
+            return redirect('/' + BASE_URL + g.full + 'search/' 
+                + request.form['source'] + '/' 
+                + request.form['target'] + '/' 
+                + request.form['query'] + '/')
+    # for GET show the search form
+    else:
+        translations = sorted([f[:-4] for f in 
+        os.listdir(app.config['TEXTFILES_FOLDER']) 
+        if f[-4:] == ".txt"])
+        
+        return render_template('search.html',translations=translations)
             
 @app.route('/search/<text1>/<text2>/<query>/',defaults={'full': ''})
 @app.route('/full/search/<text1>/<text2>/<query>/',defaults={'full': full})
 def searchcompare(full,text1,text2,query):
-        g.full = full
-        query = query.replace('+',' ')
-        fh1 = codecs.open(app.config['TEXTFILES_FOLDER'] + text1 + '.txt','r','utf-8').readlines()
-        fh2 = codecs.open(app.config['TEXTFILES_FOLDER'] + text2 + '.txt','r','utf-8').readlines()
-        if re.match(re.compile("\d{8}"),query):
-            verses1 = {v.split('\t')[0]:v.split("\t")[1].strip() for v in fh1 
-            if not v.strip().startswith("#") and v.split('\t')[0] == query}
-        else:
-            verses1 = {v.split('\t')[0]:v.split('\t')[1].strip() for v in fh1 
-              if not v.strip().startswith('#') and query in v.split('\t')[1]}
-        verseids = sorted(verses1.keys())
-        verses2t = {v.split('\t')[0]:v.split('\t')[1].strip() for v in fh2 if v.strip()[:8] in verseids}
-        verses2 = list()
-        verses1rel = list()
-        for v in verseids:
-            if v in verses2t:
-                verses2.append([v,verses2t[v]])
-                verses1rel.append([v,verses1[v]])
-                
-        textname1 = text1#[:3]
-        textname2 = text2#[:3]
-        
-        return render_template("compare.html",query=query,verses=zip(verses1rel,verses2),
-            text1=textname1,text2=textname2)
+    """
+    URL: search/text1/text2/query/
+    Search a term in one translation and return all verses in which it occurs
+    together with the parallel verses in the second translation.
+    """
+    g.full = full
+
+    # clean up query term
+    query = query.replace('+',' ')
+    # open both files
+    fh1 = codecs.open(app.config['TEXTFILES_FOLDER'] + text1 
+        + '.txt','r','utf-8').readlines()
+    fh2 = codecs.open(app.config['TEXTFILES_FOLDER'] + text2 
+        + '.txt','r','utf-8').readlines()
+    # check whether query term is a valid verse ID
+    # if verse ID => search for respective verse
+    if re.match(re.compile("\d{8}"),query):
+        verses1 = {v.split('\t')[0]:v.split("\t")[1].strip() for v in fh1 
+        if not v.strip().startswith("#") and v.split('\t')[0] == query}
+    # otherwise search for query term in first translation
+    else:
+        verses1 = {v.split('\t')[0]:v.split('\t')[1].strip() for v in fh1 
+          if not v.strip().startswith('#') and query in v.split('\t')[1]}
+
+    # collect all verses with the IDs that are relevant for the query
+    verseids = sorted(verses1.keys())
+    verses2t = {v.split('\t')[0]:v.split('\t')[1].strip() for v in fh2 
+        if v.strip()[:8] in verseids}
+    verses2 = list()
+    verses1rel = list()
+    for v in verseids:
+        if v in verses2t:
+            verses2.append([v,verses2t[v]])
+            verses1rel.append([v,verses1[v]])
+            
+    return render_template("compare.html",query=query,
+        verses=zip(verses1rel,verses2),
+        text1=text1,text2=text2)
         
 @app.route('/search/<text1>/<query>/',defaults={'full': ''})
 @app.route('/full/search/<text1>/<query>/',defaults={'full': full})
 def searchresults(full,text1,query):
-        g.full = full
-        query = query.replace('+',' ')
-        fh1 = codecs.open(app.config['TEXTFILES_FOLDER'] + text1 + '.txt','r','utf-8').readlines()
-        verses1 = [v.strip().split('\t') for v in fh1 if query in v and not v.strip().startswith('#')]
-        
-        return render_template("searchresult.html",query=query,verses=verses1)
+    """
+    URL: /search/text1/query/
+    Lists all the verses containing the given search query for the given 
+    translation
+    """
+    g.full = full
+
+    # clean up query term
+    query = query.replace('+',' ')
+
+    # collect all verses containing the query term
+    fh1 = codecs.open(app.config['TEXTFILES_FOLDER'] + text1 
+        + '.txt','r','utf-8').readlines()
+    verses1 = [v.strip().split('\t') for v in fh1 if query in v and 
+        not v.strip().startswith('#')]
+    
+    return render_template("searchresult.html",query=query,verses=verses1)
         
     
 # /eng-x-bible-engkj-v0.zip/
 @app.route('/<translation>-v<translationversion>.zip')
 def zipfile(translation,translationversion):
-        g.full = ''
-        return redirect('static/files/zipfiles/' + translation + "-v" + translationversion + '.zip')
+    """
+    URL: /translation.zip/
+    Redirects to the respective zip datapackage
+    """
+    g.full = ''
+    return redirect('static/files/zipfiles/' + translation + "-v" 
+        + translationversion + '.zip')
 
 # /eng-x-bible-engkj/
 @app.route('/<translation>/',defaults={'full': ''})
