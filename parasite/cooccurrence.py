@@ -45,6 +45,9 @@ class Cooccurrence():
 
     def __init__(self,text1,text2,method="residuals"):
 
+        self.text1 = text1
+        self.text2 = text2
+
         self.matrix1,self.wf1,self.wfdict1 = text1.get_matrix()
         self.matrix2,self.wf2,self.wfdict2 = text2.get_matrix()
         

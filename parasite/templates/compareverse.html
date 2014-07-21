@@ -1,6 +1,39 @@
 {% extends "layout.html" %}
 {% block includefiles %}
         <script src="{{ url_for('static', filename='d3/d3.min.js') }}" charset="utf-8"></script>
+
+<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+
+<style>
+        .d3-tip {
+  line-height: 1;
+  font-weight: bold;
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 3px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+.d3-tip:after {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 9px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: "\25BC";
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips differently */
+.d3-tip.n:after {
+  margin: -2px 0 0 0;
+  top: 100%;
+  left: 0;
+}
+</style>
 {% endblock %}
 {% block body %}
 <h1 id="page_title">Comparison of {{ verse }} for <br>
@@ -8,6 +41,12 @@
     {{ translation1 }}</a> and <br>
 <a href="{{ url_for('.listtranslation',full=g.full,translation=translation2) }}">
 {{ translation2 }}</a></h1>
+
+<div>
+<a href="{{ url_for('.compare',full=g.full,translation1=translation2,
+translation2=translation1,verse=verse) }}">Reverse order of languages</a>
+</div>
+<br>
 
 
 <script>
@@ -20,17 +59,27 @@ var alignment = {{ alignment }};
 
 <div id='sent1'>
 <a href="{{ url_for('.listtranslation',full=g.full,translation=translation1) }}">
-    <kbd>{{ translation1 }}</kbd>
+    <span class="label label-default">{{ translation1 }}</span>
 </a></div>
 
 <div id='sent2'>
 <a href="{{ url_for('.listtranslation',full=g.full,translation=translation2) }}">
-    <kbd>{{ translation2 }}</kbd>
+    <span class="label label-default">{{ translation2 }}</span>
 </a></div>
 
 <div id='vis'></div>
 
 <script>
+
+var tip = d3.tip()
+  .attr('class', 'd3-tip')
+  .offset([-10, 0])
+  .html(function(d) {
+    return words1[d[1]] + " &rarr; " + words2[d[2]] + " [" 
+            + Math.round(d[0]*100)/100 + "]" + "";
+  })
+
+
       //height of each row in the heatmap
       var h = 20;
       //width of each column in the heatmap
@@ -156,7 +205,7 @@ var colorScaleHi = d3.scale.linear()
          .style('top',0)
          .style('left',0);
 
-
+         mySVG.call(tip);
 
       //generate heatmap rows
       var alignmentTransposed = alignment[0].map(function (_, c) { return alignment.map(function (r) { return r[c]; }); });
@@ -200,21 +249,22 @@ var colorScaleHi = d3.scale.linear()
          })
          .style('cursor',function(d){if (d[0] > 0){return 'pointer';}})
          .style('stroke','black')
-         .on("mouseover",function(d){d3.select('rect.rowlabel_' + d[1]).style("fill",'#428bca');
+         .on("mouseover",
+            function(d){d3.select('rect.rowlabel_' + d[1]).style("fill",'#428bca');
              d3.select('text.rowlabelText_' + d[1]).style("fill",'white');
              d3.select('rect.collabel_' + d[2]).style("fill",'#428bca');
              d3.select('text.collabelText_' + d[2]).style("fill",'white');
-             //d3.select(this).style('fill',function(d) {
-            //return colorScaleHi(d[0]);})
+         tip.show(d)
             ;})
-         .on("mouseout",function(d){d3.select('rect.rowlabel_' + d[1]).style("fill",'none');
+         .on("mouseout",
+            function(d){d3.select('rect.rowlabel_' + d[1]).style("fill",'none');
              d3.select('text.rowlabelText_' + d[1]).style("fill",'black');
              d3.select('rect.collabel_' + d[2]).style("fill",'none');
              d3.select('text.collabelText_' + d[2]).style("fill",'black');
-             d3.select(this).style('stroke','black')
-             //d3.select(this).style('fill',function(d) {
-            //return colorScale(d[0]);})
-            ;})
+             d3.select(this).style('stroke','black');
+             tip.hide(d);
+             })
+         /*
          .append("title")
          .text(function(d,i){
 
@@ -223,6 +273,7 @@ var colorScaleHi = d3.scale.linear()
             return words1[d[1]] + " => " + words2[d[2]] + " [" 
             + Math.round(d[0]*100)/100 + "]" + d3.min(values) + "|" + d3.max(values);
             ;})
+            */
          ;
          
       // Background label columns

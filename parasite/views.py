@@ -1,6 +1,7 @@
 #from parasite import app
 from flask import Flask, render_template, url_for, redirect, g, request
 from werkzeug.routing import BaseConverter
+#from werkzeug.contrib.cache import SimpleCache
 import os
 import codecs
 import re
@@ -13,6 +14,10 @@ class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
         super(RegexConverter, self).__init__(url_map)
         self.regex = items[0]
+
+
+# for caching the matrices
+#cache = SimpleCache()
 
 # Defining some constants for handling relative URLs on the server
 BASE_URL = ""
@@ -27,6 +32,7 @@ app.config['TEXTFILES_FOLDER'] = TEXTFILES_FOLDER
 app.config['ZIPFILES_FOLDER'] = ZIPFILES_FOLDER
 app.config['DATA_FOLDER'] = DATA_FOLDER
 app.url_map.converters['regex'] = RegexConverter
+
 
 # URL path for displaying all data
 full = 'full/' # URL for full access
@@ -54,6 +60,7 @@ def index(full):
         'lang_coords_all.txt','r','utf-8').readlines()
     codebygeo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh[1:]}
     
+    # create the list of language objects
     languages = list()
     for c in codesbytranslations:
         currdict = dict()
@@ -145,16 +152,19 @@ def searchcompare(full,text1,text2,query):
 
     # clean up query term
     query = query.replace('+',' ')
+
     # open both files
     fh1 = codecs.open(app.config['TEXTFILES_FOLDER'] + text1 
         + '.txt','r','utf-8').readlines()
     fh2 = codecs.open(app.config['TEXTFILES_FOLDER'] + text2 
         + '.txt','r','utf-8').readlines()
+
     # check whether query term is a valid verse ID
     # if verse ID => search for respective verse
     if re.match(re.compile("\d{8}"),query):
         verses1 = {v.split('\t')[0]:v.split("\t")[1].strip() for v in fh1 
         if not v.strip().startswith("#") and v.split('\t')[0] == query}
+
     # otherwise search for query term in first translation
     else:
         verses1 = {v.split('\t')[0]:v.split('\t')[1].strip() for v in fh1 
@@ -170,9 +180,11 @@ def searchcompare(full,text1,text2,query):
         if v in verses2t:
             verses2.append([v,verses2t[v]])
             verses1rel.append([v,verses1[v]])
+
+    verses = zip(verses1rel,verses2)
             
     return render_template("compare.html",query=query,
-        verses=zip(verses1rel,verses2),
+        verses=verses,
         text1=text1,text2=text2)
         
 @app.route('/search/<text1>/<query>/',defaults={'full': ''})
@@ -202,9 +214,10 @@ def searchresults(full,text1,query):
 def zipfile(translation,translationversion):
     """
     URL: /translation.zip/
-    Redirects to the respective zip datapackage
+    Redirects to the respective zip datapackage for download
     """
     g.full = ''
+
     return redirect('static/files/zipfiles/' + translation + "-v" 
         + translationversion + '.zip')
 
@@ -212,147 +225,253 @@ def zipfile(translation,translationversion):
 @app.route('/<translation>/',defaults={'full': ''})
 @app.route('/full/<translation>/',defaults={'full': full})
 def listtranslation(full,translation):
-        g.full = full
-        g.baseurl = BASE_URL
-        try:
-        
-            versions = [f for f in os.listdir(app.config['TEXTFILES_FOLDER']) 
-                if str(translation) in f]
-            versionnumbers = sorted([int(v[:-4].split('-')[-1][1:]) for v in versions],reverse=True)
-            #return redirect('/' + g.full + translation + '-v' + str(versionnumbers[0]) + '/')
-            return redirect(url_for('.listtranslationversion',full=g.full,translation=translation,
-                translationversion=str(versionnumbers[0])))
-        except:
-            return render_template('error.html',error="Bible text not available")
+    """
+    URL: /translation/
+    Searches for the highest version number for the respective translation
+    and redirects to its listtranslationversion.
+    """
+    g.full = full
+    g.baseurl = BASE_URL
+
+    try:
+        # search for all available versions of the translation
+        versions = [f for f in os.listdir(app.config['TEXTFILES_FOLDER']) 
+            if str(translation) in f]
+
+        # get the highest version number for this translation
+        versionnumbers = sorted([int(v[:-4].split('-')[-1][1:]) 
+            for v in versions],reverse=True)
+
+        return redirect(url_for('.listtranslationversion',full=g.full,
+            translation=translation,
+            translationversion=str(versionnumbers[0])))
+    except:
+        return render_template('error.html',
+            error="Bible text not available")
 
 # /eng-x-bible-engkj-v0/    
 @app.route('/<translation>-v<translationversion>/',defaults={'full': ''})
 @app.route('/full/<translation>-v<translationversion>/',defaults={'full': full})
 def listtranslationversion(full,translation,translationversion):
-        g.full = full
-        g.baseurl = BASE_URL
-        #try:
-        if True:
-            fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + "-v" + translationversion + '.txt',
+    """
+    URL: /translationversion/
+    Lists all metadata for the respective translation version together with
+    links to the datapackage and (sample) text.
+    """
+    g.full = full
+    g.baseurl = BASE_URL
+    try:
+        fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation 
+            + "-v" + translationversion + '.txt',
             'r','utf-8').readlines()
-            books = []
-            if g.full != '':
-                books = sorted(list({l[:2] for l in fh if l[0] != "#" and re.match('\d{2}',l[:2])}))
-            info = [l[2:].split(":",1) for l in fh if re.match("# [a-zA-Z]",l)]
-            urlsinfo = [l[1] for l in info if l[0] == "URL"]
-            urls = urlsinfo[0].split("<br>")
-            return render_template('translation.html',
+
+        # get all books for this translation version  
+        books = []
+        if g.full != '':
+            books = sorted(list({l[:2] for l in fh if l[0] != "#" 
+                and re.match('\d{2}',l[:2])}))
+
+        # extract all metadata from the file
+        info = [l[2:].split(":",1) for l in fh if re.match("# [a-zA-Z]",l)]
+        urlsinfo = [l[1] for l in info if l[0] == "URL"]
+        urls = urlsinfo[0].split("<br>")
+
+        return render_template('translation.html',
             translation=translation,info=info,books=books,urls=urls,
-            translationversion=translation+ "-v" + translationversion,version=translationversion)
-        #except:
-        #    return render_template('error.html',error="Bible version not available")
+            translationversion=translation+ "-v" + translationversion,
+            version=translationversion)
+    except:
+        return render_template('error.html',error="Bible version not available")
     
 
 # /eng-x-bible-engkj-v0/41/        
 @app.route('/<translation>/<regex("\d{2}"):book>/',defaults={'full': ''})
 @app.route('/full/<translation>/<regex("\d{2}"):book>/',defaults={'full': full})
 def listbook(full,translation,book):
-        g.full = full
-        g.baseurl = BASE_URL
-        if g.full == '' and book != '41':
-            return render_template("error.html",error="Book not available")
-        fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
-            'r','utf-8').readlines()
-        verses = [l.split('\t',1)[0] for l in fh if l[0] != "#" and l[:2] == book]
-        rel_verses = sorted(list({v[2:5] for v in verses}))
-        if verses:
-            return render_template('book.html',translation=translation,book=book,chapters=rel_verses)
-        else:
-            return render_template("error.html",error="No verses available")
+    """
+    URL: /translationversion/book/
+    Lists all chapters of the translation's book
+    """
+    g.full = full
+    g.baseurl = BASE_URL
+
+    # only show books's chapters when full access (except Mark)
+    if g.full == '' and book != '41':
+        return render_template("error.html",error="Book not available")
+
+    # get all chapters for the respective book
+    fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
+        'r','utf-8').readlines()
+    verses = [l.split('\t',1)[0] for l in fh if l[0] != "#" and l[:2] == book]
+    rel_verses = sorted(list({v[2:5] for v in verses}))
+
+    if verses:
+        return render_template('book.html',translation=translation,book=book,
+            chapters=rel_verses)
+    else:
+        return render_template("error.html",error="No verses available")
 
 # /eng-x-bible-engkj-v0/41/001/            
-@app.route('/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/',defaults={'full': ''})
-@app.route('/full/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/',defaults={'full': full})
+@app.route('/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/',
+    defaults={'full': ''})
+@app.route('/full/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/'
+    ,defaults={'full': full})
 def listchapter(full,translation,book,chapter):
-        g.full = full
-        g.baseurl = BASE_URL
-        if g.full == '' and book != '41':
-            return render_template("error.html",error="Chapter not available")
-        fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
-            'r','utf-8').readlines()
-        verses = [l.split('\t',1) for l in fh if l[0] != "#" and l[:5] == book + chapter]
-        rel_verses = sorted(verses)
-        
-        if verses:
-            return render_template("chapter.html",translation=translation,book=book,chapter=chapter,verses=rel_verses)
-        else:
-            return render_template("error.html",error="No verses available")
+    """
+    URL: /translationversion/book/chapter/
+    Lists all verses of the translation's chapter
+    """
+    g.full = full
+    g.baseurl = BASE_URL
+
+    # only show chapter's verses when full access (except Mark)
+    if g.full == '' and book != '41':
+        return render_template("error.html",error="Chapter not available")
+
+    # get all verses for the respective chapter
+    fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
+        'r','utf-8').readlines()
+    verses = [l.split('\t',1) for l in fh if l[0] != "#" 
+        and l[:5] == book + chapter]
+    rel_verses = sorted(verses)
+    
+    if verses:
+        return render_template("chapter.html",translation=translation,
+            book=book,chapter=chapter,verses=rel_verses)
+    else:
+        return render_template("error.html",error="No verses available")
             
 # /eng-x-bible-engkj-v0/41/001/001/ 
-@app.route('/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/<regex("\d{3}"):verse>/',defaults={'full': ''})
-@app.route('/full/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/<regex("\d{3}"):verse>/',defaults={'full': full})
+@app.route('/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/<regex("\d{3}"):verse>/',
+    defaults={'full': ''})
+@app.route('/full/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/<regex("\d{3}"):verse>/',
+    defaults={'full': full})
 def listverse(full,translation,book,chapter,verse):
-        g.full = full
-        g.baseurl = BASE_URL
-        if g.full == '' and book != '41':
-            return render_template("error.html",error="Verse not available")
-        else:
-            fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
-            'r','utf-8').readlines()
-            verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() for l in fh if l[0] != "#"}
-        
-        if book+chapter+verse in verses:
-            return render_template("verse.html",translation=translation,book=book,
-            chapter=chapter,verse=verse,versetext=verses[book+chapter+verse])
-        else:
-            return render_template("error.html",error="No verses available")
+    """
+    URL: /translationversion/book/chapter/verse
+    Shows the given verse
+    """
+    g.full = full
+    g.baseurl = BASE_URL
+
+    # only show the verse when full access (except Mark)
+    if g.full == '' and book != '41':
+        return render_template("error.html",error="Verse not available")
+    else:
+        fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
+        'r','utf-8').readlines()
+        verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() 
+            for l in fh if l[0] != "#"}
+    
+    if book+chapter+verse in verses:
+        return render_template("verse.html",translation=translation,book=book,
+        chapter=chapter,verse=verse,versetext=verses[book+chapter+verse])
+    else:
+        return render_template("error.html",error="No verses available")
             
 # /eng-x-bible-engkj-v0/41001001/ 
 @app.route('/<translation>/<regex("\d{8}"):verse>/',defaults={'full': ''})
-@app.route('/full/<translation>/<regex("\d{8}"):verse>/',defaults={'full': full})
+@app.route('/full/<translation>/<regex("\d{8}"):verse>/',
+    defaults={'full': full})
 def listverseflat(full,translation,verse):
-        g.full = full
-        g.baseurl = BASE_URL
-        if g.full == '' and verse[:2] != '41':
-            return render_template("error.html",error="Verse not available")
-        else:
-            fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
-            'r','utf-8').readlines()
-            verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() for l in fh if l[0] != "#"}
-        
-        if verse in verses:
-            return render_template("verse.html",translation=translation,book=verse[:2],
-            chapter=verse[2:5],verse=verse[5:],versetext=verses[verse])
-        else:
-            return render_template("error.html",error="No verses available")
+    """
+    URL: /translationversion/verse/
+    Shows the given verse with flat ID
+    """
+    g.full = full
+    g.baseurl = BASE_URL
+
+    # only show the verse when full access (except Mark)
+    if g.full == '' and verse[:2] != '41':
+        return render_template("error.html",error="Verse not available")
+    else:
+        fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
+        'r','utf-8').readlines()
+        verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() 
+            for l in fh if l[0] != "#"}
+    
+    if verse in verses:
+        return render_template("verse.html",translation=translation,
+            book=verse[:2],chapter=verse[2:5],verse=verse[5:],
+            versetext=verses[verse])
+    else:
+        return render_template("error.html",error="No verses available")
 
 # /full/eng-x-bible-engkj-v0.txt/
 @app.route('/full/<translation>-v<translationversion>.txt')
 def textfilefull(translation,translationversion):
-        g.full = full
-        g.baseurl = BASE_URL
-        return redirect('/' + g.baseurl + 'static/files/textfiles/' + translation + "-v" + translationversion + '.txt')
-
-# /compare/eng-x-bible-engkj-v1/deu-x-bible-luther-v1/
-@app.route('/compare/<translation1>/<translation2>/<verse>/',defaults={'full': ''})
-@app.route('/full/compare/<translation1>/<translation2>/<verse>/',defaults={'full': full})
-def compare(full,translation1,translation2,verse):
+    """
+    URL: /translationversion.txt
+    Redirects to the text file of the given translationversion
+    """
     g.full = full
     g.baseurl = BASE_URL
-    text1 = reader.ParText(app.config['TEXTFILES_FOLDER'] + translation1 + '.txt')
-    text2 = reader.ParText(app.config['TEXTFILES_FOLDER'] + translation2 + '.txt')
-    raw_words1 = text1.get_raw_verses()[int(verse)]
-    raw_words2 = text2.get_raw_verses()[int(verse)]
+
+    return redirect('/' + g.baseurl + 'static/files/textfiles/' 
+        + translation + "-v" + translationversion + '.txt')
+
+# /compare/eng-x-bible-engkj-v1/deu-x-bible-luther-v1/
+@app.route('/compare/<translation1>/<translation2>/<verse>/',
+    defaults={'full': ''})
+@app.route('/full/compare/<translation1>/<translation2>/<verse>/',
+    defaults={'full': full})
+def compare(full,translation1,translation2,verse):
+    """
+    URL: /translation1/translation2/verse
+    Compares two parallel verses from different translations and computes
+    the association measure (Poisson) of each word pair
+    """
+    g.full = full
+    g.baseurl = BASE_URL
+
+    """
+    # version with SimpleCache (not fast enough as it is)
+    assoc = cache.get(translation1 + "_" + translation2)
+    if assoc is None:
+
+        text1 = reader.ParText(app.config['TEXTFILES_FOLDER'] + translation1 + '.txt')
+        text2 = reader.ParText(app.config['TEXTFILES_FOLDER'] + translation2 + '.txt')
+        poisson = cooccurrence.Cooccurrence(text1,text2,method="poisson")
+
+        pack = poisson
+
+        assoc = cache.set(translation1 + "_" + translation2, pack, timeout= 5 * 60)
+
+    else:
+        poisson = assoc
+    """
+
+    # read texts in ParText objects
+    text1 = reader.ParText(app.config['TEXTFILES_FOLDER'] 
+        + translation1 + '.txt')
+    text2 = reader.ParText(app.config['TEXTFILES_FOLDER'] 
+        + translation2 + '.txt')
+
+    # create cooccurrence object
     poisson = cooccurrence.Cooccurrence(text1,text2,method="poisson")
-    verse1 = text1[int(verse)]
-    verse2 = text2[int(verse)]
-    #words12 = [[poisson.get_assoc(w1,w2) for w1 in verse1] for w2 in verse2]
-    #words21 = [[poisson.get_assoc(w1,w2) for w2 in verse2] for w1 in verse1]
-    words12 = [[poisson.get_assoc(w1.lower(),w2.lower()) for w1 in raw_words1] for w2 in raw_words2]
-    words21 = [[poisson.get_assoc(w1.lower(),w2.lower()) for w2 in raw_words2] for w1 in raw_words1]
+
+    # extract words and association measures from the objects
+    raw_words1 = poisson.text1.get_raw_verses()[int(verse)]
+    raw_words2 = poisson.text2.get_raw_verses()[int(verse)]
+    verse1 = poisson.text1[int(verse)]
+    verse2 = poisson.text2[int(verse)]
+
+    words12 = [[poisson.get_assoc(w1.lower(),w2.lower()) 
+        for w1 in raw_words1] for w2 in raw_words2]
+    words21 = [[poisson.get_assoc(w1.lower(),w2.lower()) 
+        for w2 in raw_words2] for w1 in raw_words1]
     words1 = raw_words1 #verse1 
     words2 = raw_words2 #verse2 
 
-    alignment = [[[poisson.get_assoc(w1.lower(),w2.lower()),c1,c2] for c1,w1 in enumerate(raw_words1)] for c2,w2 in enumerate(raw_words2)]
+    # create alignment array for JavaScript
+    alignment = [[[poisson.get_assoc(w1.lower(),w2.lower()),c1,c2] 
+        for c1,w1 in enumerate(raw_words1)] for c2,w2 in enumerate(raw_words2)]
 
     return render_template('compareverse.html',words1=words1,words2=words2,
         words12=str(words12),words21=str(words21),alignment=str(alignment),
         verse=verse,translation1=translation1,translation2=translation2)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)

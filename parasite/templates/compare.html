@@ -1,11 +1,26 @@
 {% extends "layout.html" %}
+
+{% block includefiles %}
+        <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+        <script type="text/javascript" src="{{ url_for('static', filename='scripts/jquery.simplePagination.js') }}"></script> 
+        <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/simplePagination.css') }}"/>
+
+
+<style type="text/css">
+    .selection {
+        display: none;
+    }
+</style>
+
+{% endblock %}
 {% block body %}
 <h1 id="page_title">{{ verses|length }} search results for "{{ query }}"</h1>
+
 <table border='0' class="tablecomparison table-striped">
 {% for verse in verses %}
-	<tr><td style="border-bottom: 2px solid black;" valign="top" align="right" rowspan="2">{{ loop.index }})</td>
+	<tr class="selection page-{{ (loop.index // 10) + 1}}"><td style="border-bottom: 2px solid black;" valign="top" align="right" rowspan="2">{{ loop.index }})</td>
     <td valign="top">{{ verse[0][0] }} <br>
-    <a href="{{ url_for('.listtranslation',full=g.full,translation=text1) }}"><kbd title="{{ text1 }}">{{ text1|truncate(3,killwords=True,end='') }}</kbd></a>
+    <a href="{{ url_for('.listtranslation',full=g.full,translation=text1) }}"><span class="label label-default" title="{{ text1 }}">{{ text1 }}</span></a>
     </td>
     <td valign="top">
 	{{ verse[0][1] }} </td>
@@ -13,10 +28,10 @@
 
     <td valign="middle" style="border-bottom: 2px solid black;" rowspan="2"><a href="{{ url_for('.compare', full=g.full, translation1=text1, translation2=text2, verse=verse[0][0]) }}" class="btn btn-primary btn-xs" role="button">Compare</a></td>
 	</tr>
-	<tr class="translation">
+	<tr class="translation selection page-{{ (loop.index // 10) + 1 }}">
 	<td valign="top">{{ verse[1][0] }} <br>
 	<a href="{{ url_for('.listtranslation',full=g.full,translation=text2) }}">
-        <kbd title="{{ text2 }}">{{ text2|truncate(3,killwords=True,end='') }}</kbd>
+        <span class="label label-default" title="{{ text2 }}">{{ text2 }}</span>
     </a>
 	</td>
 	
@@ -24,4 +39,36 @@
     </tr>
 {% endfor %}
 </table>
+
+<br>
+<div id="selector">
+</div>
+<script>
+
+function test(pageNumber)
+{
+
+  var page=".page-"+pageNumber;
+  $('.selection').hide()
+  $(page).show()
+
+}
+
+$(function() {
+    $("#selector").pagination({
+        items: {{ verses|length }},
+        itemsOnPage: 10,
+        cssStyle: 'compact-theme',
+        onPageClick: function(pageNumber){test(pageNumber)}
+    });
+});
+
+test(1);
+</script>
+
+
+
+
+
+
 {% endblock %}
