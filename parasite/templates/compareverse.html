@@ -67,11 +67,15 @@ var alignment = {{ alignment }};
     <span class="label label-default">{{ translation2 }}</span>
 </a></div>
 
+<div id="controlpanel" style="width: 200px;">
+<label>
+    Threshold: <input type="range" min="5" max="1000" value="20" name="maxslider" id="maxslider">
+</label>
+</div>
+
 <div id='vis'></div>
 
-<div id="controlpanel" style="width: 200px;">
-<input type="range" min="5" max="1000" value="20" name="maxslider" id="maxslider">
-</div>
+
 
 <script>
 
@@ -148,7 +152,10 @@ var colorScaleHi = d3.scale.linear()
                 colorScaleHi.domain([d3.min(d),d3.max(d)])
                 for(var m=0;m<d.length;m++){
                     d3.select('span.words2_' + m)
-                        .style('background-color',function(){return colorScaleHi(d[m]);})
+                        .style('background-color',function(){
+                            //return colorScaleHi(d[m]);
+                            return computeValue(d[m]);
+                        })
                     ;
                 }
                 
@@ -180,7 +187,10 @@ var colorScaleHi = d3.scale.linear()
                 colorScaleHi.domain([d3.min(d),d3.max(d)])
                 for(var m=0;m<d.length;m++){
                     d3.select('span.words1_' + m)
-                        .style('background-color',function(){return colorScaleHi(d[m]);})
+                        .style('background-color',function(){
+                            //return colorScaleHi(d[m]);
+                            return computeValue(d[m]);
+                        })
                     ;
                 }
                 
@@ -241,7 +251,7 @@ var colorScaleHi = d3.scale.linear()
             return (d[1] * h) + margin_top;
          })
          .style('fill',function(d,i) {
-            var values = alignmentTransposed[i].map(function(f){ return f[0];});
+            /*
             minval = 0;
             maxval = maxthresh;
             newval = d[0];
@@ -250,6 +260,8 @@ var colorScaleHi = d3.scale.linear()
             //colorScale.domain([d3.min(values),d3.max(values)]);
             colorScale.domain([minval,maxval]);
             return colorScale(newval);
+            */
+            return computeValue(d[0]);
          })
          .style('cursor','pointer')
          .style('stroke','black')
@@ -337,6 +349,7 @@ var colorScaleHi = d3.scale.linear()
 
             d3.selectAll(".heatmapCell")
                 .style("fill",function(d,i){
+                    /*
                     minval = 0;
                     maxval = maxthresh;
                     newval = d[0];
@@ -345,11 +358,25 @@ var colorScaleHi = d3.scale.linear()
                     //colorScale.domain([d3.min(values),d3.max(values)]);
                     colorScale.domain([minval,maxval]);
                     return colorScale(newval);
+                    */
+                    return computeValue(d[0]);
 
                 })
                 ;
 
-         })
+         });
+
+         function computeValue(oldvalue){
+                    minval = 0;
+                    maxval = maxthresh;
+                    newval = oldvalue;
+                    if(newval < 2){ newval = 0;}
+                    if(newval > maxthresh){ newval = maxthresh;}
+                    //colorScale.domain([d3.min(values),d3.max(values)]);
+                    colorScale.domain([minval,maxval]);
+                    return colorScale(newval);
+
+         }
          
 </script>
 

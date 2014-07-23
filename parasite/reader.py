@@ -26,7 +26,7 @@ class ParText():
     enc: encoding of the file (default: UTF-8)
     """
     
-    def __init__(self,filename,commentmarker="#",sep="\t",enc="utf-8",portions=range(0,67)):
+    def __init__(self,filename,commentmarker="#",sep="\t",enc="utf-8",portions=None):
         
         self.iso = filename[:3]
         self.filename = filename
@@ -38,27 +38,26 @@ class ParText():
             filename = iso_by_bible[filename]
         
         # open file
-        fh = codecs.open(filename,'r',encoding=enc).readlines()
+        fh = [line for line in codecs.open(filename,'r',encoding=enc).readlines()
+              if not line.lstrip().startswith(commentmarker)]
 
-        self.raw_verses = [(int(items[0].strip()),items[1].strip().split()) 
+        self.raw_verses = [(int(items[0]),items[1].split()) 
             for line in fh
             for items in [line.split(sep,1)]
-            if not line.strip().startswith(commentmarker)
-            if int(line.strip()[:2]) in portions]
+            if portions == None or int(line.lstrip()[:2]) in portions]
         
         # clean up all punctuation marks TODO: find a better method to remove all non-letters!
-        pat = re.compile("[“”‘’`´“”‘’`´‚<>.;,:?¿‹›!()\[\]—\"„§$%&\/\=_{}]") 
+        pat = re.compile("[“”‘’`´“”‘’`´‚<>.;,:?¿‹›!()\[\]—\"„§$%&\/\=_{}]")
         fh = "\t\t".join(fh)
-        fh = re.sub(pat,'',fh)
+        fh = re.sub(pat,'',fh).lower()
         fh = fh.split("\t\t")
         
         # collect all verses    
-        self.verses = [(int(items[0].strip()),items[1].strip().lower().split()) for line in fh 
+        self.verses = [(int(items[0]),items[1].split()) for line in fh 
                     for items in [line.split(sep,1)] 
-                    if not line.strip().startswith(commentmarker)
-                    if int(line.strip()[:2]) in portions] 
+                    if portions == None or int(line.lstrip()[:2]) in portions] 
                     
-        self.versedict = {v[0]:v[1] for v in self.verses}
+        self.versedict = dict(self.verses)
                     
     def __getitem__(self,id):
         """Returns the text of the verse given by the verse id.
@@ -84,7 +83,7 @@ class ParText():
         if format == "tuple":
             return self.verses
         else:
-            return dict(self.verses)
+            return self.versedict
             
     def get_verses_strings(self):
         """
@@ -115,17 +114,18 @@ class ParText():
         format: either as a dict of types [format='types'] (with frequency as value) 
             or a list of tokens [format='tokens']
         """
-        # collect all wordforms (types and tokens)
-        self.wordforms = collections.defaultdict(int)
-        for id,verse in self.verses:
-            for word in verse:
-                if word.strip() != '': self.wordforms[word] += 1
-           
-        
-        if format == "tokens":
-            return sorted(self.wordforms.keys())
-        else:
-            return self.wordforms
+        if format == 'types':
+            # collect all wordforms (types and tokens)
+            wordforms = collections.defaultdict(int)
+            for id,verse in self.verses:
+                for word in verse:
+                    wordforms[word] += 1
+            return wordforms
+        else: # tokens
+            words = set()
+            for id, verse in self.verses:
+                words.update(verse)
+            return sorted(words)
             
     def wordforms_verses_count(self):
         """Returns a two-dimensional dictionary of wordforms and verses and how often the
@@ -171,26 +171,31 @@ class ParText():
         """Returns the verse Ids for this parallel text."""
         
         return sorted([v[0] for v in self.verses])
-        
-    def get_matrix(self):
+
+    def get_max_verseid(self):
+        return self.verses[-1][0]
+
+    def get_matrix(self, matrix_width=99999999):
         """Returns a sparse matrix with verse IDs as row names and words as column names where
         each cell indicates how many times the word occurs in the respective verse."""
 
+        def row_iter(verses, wordforms_by_number):
+            for id, verse in verses:
+                for word in verse:
+                    yield wordforms_by_number[word]
+
+        def column_iter(verses):
+            for id, verse in verses:
+                for _ in verse:
+                    yield id
+
         wordforms = self.get_wordforms(format="tokens")
-        
-        rowdata = list()
-        coldata = list()
-        data = list()
         wordforms_by_number = {w: i for i,w in enumerate(wordforms)}
-        wfcounter = 0
-        for id,verse in self.verses:
-            for word in verse:
-                #words_by_verses[word].append(id)
-                rowdata.append(wordforms_by_number[word])
-                coldata.append(id)
-                data.append(1)
-                
-        sparse = coo_matrix((data,(rowdata,coldata)),dtype="int16",shape=(len(wordforms),99999999))
+
+        rowdata = np.fromiter(row_iter(self.verses, wordforms_by_number), 'int32')
+        coldata = np.fromiter(column_iter(self.verses), 'int32')
+        data = np.ones(len(coldata), dtype='int32')
+        sparse = coo_matrix((data,(rowdata,coldata)),dtype="int32",shape=(len(wordforms),matrix_width))
 
         return sparse,wordforms,wordforms_by_number
         
