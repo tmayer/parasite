@@ -3,11 +3,8 @@ __date__="2014-04-22"
 
 import reader
 import collections
-try:
-    from scipy.sparse import lil_matrix, csc_matrix, coo_matrix, diags
-    import numpy as np
-except:
-    pass
+from scipy.sparse import lil_matrix, csc_matrix, coo_matrix, spdiags
+import numpy as np
 
 def cooccurrence(text1,text2):
     """Counts the frequency of cooccurrence for all wordforms in the two texts.
@@ -73,8 +70,8 @@ class Cooccurrence():
         Fx_old = np.array(O.sum(1)).flatten()
         Fy_old = np.array(O.sum(0)).flatten()
         
-        Fx = diags(Fx_old,0)
-        Fy = diags(Fy_old,0)
+        Fx = spdiags(Fx_old,0,Fx_old.shape[0],Fx_old.shape[0])
+        Fy = spdiags(Fy_old,0,Fy_old.shape[0],Fy_old.shape[0])
         
         Fx = Fx.tocsc()
         Fy = Fy.tocsc()

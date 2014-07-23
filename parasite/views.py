@@ -206,11 +206,12 @@ def searchresults(full,text1,query):
     verses1 = [v.strip().split('\t') for v in fh1 if query in v and 
         not v.strip().startswith('#')]
     
-    return render_template("searchresult.html",query=query,verses=verses1)
+    return render_template("searchresult.html",translation=text1,
+        query=query,verses=verses1)
         
     
 # /eng-x-bible-engkj-v0.zip/
-@app.route('/<translation>-v<translationversion>.zip')
+@app.route('/<translation>-v<regex("\d+"):translationversion>.zip')
 def zipfile(translation,translationversion):
     """
     URL: /translation.zip/
@@ -250,8 +251,8 @@ def listtranslation(full,translation):
             error="Bible text not available")
 
 # /eng-x-bible-engkj-v0/    
-@app.route('/<translation>-v<translationversion>/',defaults={'full': ''})
-@app.route('/full/<translation>-v<translationversion>/',defaults={'full': full})
+@app.route('/<translation>-v<regex("\d+"):translationversion>/',defaults={'full': ''})
+@app.route('/full/<translation>-v<regex("\d+"):translationversion>/',defaults={'full': full})
 def listtranslationversion(full,translation,translationversion):
     """
     URL: /translationversion/
@@ -398,7 +399,7 @@ def listverseflat(full,translation,verse):
         return render_template("error.html",error="No verses available")
 
 # /full/eng-x-bible-engkj-v0.txt/
-@app.route('/full/<translation>-v<translationversion>.txt')
+@app.route('/full/<translation>-v<regex("\d+"):translationversion>.txt')
 def textfilefull(translation,translationversion):
     """
     URL: /translationversion.txt

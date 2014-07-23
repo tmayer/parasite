@@ -10,6 +10,11 @@
     .selection {
         display: none;
     }
+
+    .changer:active {
+
+        color: red;
+    }
 </style>
 
 {% endblock %}
@@ -26,7 +31,7 @@
 	{{ verse[0][1] }} </td>
 	
 
-    <td valign="middle" style="border-bottom: 2px solid black;" rowspan="2"><a href="{{ url_for('.compare', full=g.full, translation1=text1, translation2=text2, verse=verse[0][0]) }}" class="btn btn-primary btn-xs" role="button">Compare</a></td>
+    <td valign="middle" style="border-bottom: 2px solid black;" rowspan="2"><a class="btn btn-primary btn-xs" href="{{ url_for('.compare', full=g.full, translation1=text1, translation2=text2, verse=verse[0][0]) }}" title="Comparison may take a few seconds..." role="button">Compare</a></td>
 	</tr>
 	<tr class="translation selection page-{{ (loop.index // 10) + 1 }}">
 	<td valign="top">{{ verse[1][0] }} <br>
@@ -53,6 +58,7 @@ function test(pageNumber)
   $(page).show()
 
 }
+
 
 $(function() {
     $("#selector").pagination({

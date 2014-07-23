@@ -4,7 +4,7 @@
 	<a href="{{ url_for('.listtranslation', full=g.full,translation=translation) }}">{{ translation }}</a>
 	<a href="{{ url_for('.listbook', full=g.full,translation=translation,book=book) }}">{{ book }}</a> {{ chapter }}
 </h1>
-<table border='0' class="tablelisting">
+<table border='0' class="tablecomparison table-striped">
 {% for verse in verses %}
 	<tr><td valign="top">
 	<a href='{{ url_for('.listverse', full=g.full,translation=translation,book=book,
@@ -13,3 +13,5 @@
 {% endfor %}
 </table>
 {% endblock %}
+
+
