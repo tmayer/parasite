@@ -69,6 +69,10 @@ var alignment = {{ alignment }};
 
 <div id='vis'></div>
 
+<div id="controlpanel" style="width: 200px;">
+<input type="range" min="5" max="1000" value="20" name="maxslider" id="maxslider">
+</div>
+
 <script>
 
 var tip = d3.tip()
@@ -80,6 +84,7 @@ var tip = d3.tip()
   })
 
 
+      var maxthresh = 20;
       //height of each row in the heatmap
       var h = 20;
       //width of each column in the heatmap
@@ -228,6 +233,7 @@ var colorScaleHi = d3.scale.linear()
          }).enter().append("svg:rect")
          .attr('width',w)
          .attr('height',h)
+         .attr('class','heatmapCell')
          .attr('x', function(d) {
             return (d[2] * w) + margin_left;
          })
@@ -235,19 +241,17 @@ var colorScaleHi = d3.scale.linear()
             return (d[1] * h) + margin_top;
          })
          .style('fill',function(d,i) {
-            /*
-            var values = alignment[currRow].map(function(f){ return f[0];});
-            //console.log(values);
-            max = d3.max(values);
-            min = d3.min(values);
-            colorScale.domain([d3.min(values),d3.max(values)]);
-            */
-            //console.log(alignment[i]);
             var values = alignmentTransposed[i].map(function(f){ return f[0];});
-            colorScale.domain([d3.min(values),d3.max(values)]);
-            return colorScale(d[0]);
+            minval = 0;
+            maxval = maxthresh;
+            newval = d[0];
+            if(newval < 2){ newval = 0;}
+            if(newval > maxthresh){ newval = maxthresh;}
+            //colorScale.domain([d3.min(values),d3.max(values)]);
+            colorScale.domain([minval,maxval]);
+            return colorScale(newval);
          })
-         .style('cursor',function(d){if (d[0] > 0){return 'pointer';}})
+         .style('cursor','pointer')
          .style('stroke','black')
          .on("mouseover",
             function(d){d3.select('rect.rowlabel_' + d[1]).style("fill",'#428bca');
@@ -264,16 +268,6 @@ var colorScaleHi = d3.scale.linear()
              d3.select(this).style('stroke','black');
              tip.hide(d);
              })
-         /*
-         .append("title")
-         .text(function(d,i){
-
-            var values = alignmentTransposed[i].map(function(f){ return f[0];});
-            
-            return words1[d[1]] + " => " + words2[d[2]] + " [" 
-            + Math.round(d[0]*100)/100 + "]" + d3.min(values) + "|" + d3.max(values);
-            ;})
-            */
          ;
          
       // Background label columns
@@ -336,6 +330,26 @@ var colorScaleHi = d3.scale.linear()
          .text(function(d) {return d;});
          
          
+         d3.select("#maxslider").on('change',function(){
+
+            maxthresh = parseInt(this.value);
+            //console.log(maxthresh);
+
+            d3.selectAll(".heatmapCell")
+                .style("fill",function(d,i){
+                    minval = 0;
+                    maxval = maxthresh;
+                    newval = d[0];
+                    if(newval < 2){ newval = 0;}
+                    if(newval > maxthresh){ newval = maxthresh;}
+                    //colorScale.domain([d3.min(values),d3.max(values)]);
+                    colorScale.domain([minval,maxval]);
+                    return colorScale(newval);
+
+                })
+                ;
+
+         })
          
 </script>
 
