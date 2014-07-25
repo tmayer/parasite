@@ -22,17 +22,34 @@
   width: 100%;
   line-height: 1;
   color: rgba(0, 0, 0, 0.8);
-  content: "\25BC";
+  content: "";
   position: absolute;
+  left: -70px;
+  top: 3px;
   text-align: center;
 }
 
 /* Style northward tooltips differently */
 .d3-tip.n:after {
-  margin: -2px 0 0 0;
+  margin: 200px 0 0 100px;
   top: 100%;
   left: 0;
 }
+
+.bs-callout {
+    padding: 20px;
+    margin: 20px 0;
+    border: 1px solid #ccc;
+    border-left-width: 5px;
+    border-radius: 3px
+    background-color: #fff;
+}
+
+.bs-callout-info {
+    border-left-color: #4876a2;
+    background-color: #fff;
+}
+
 </style>
 {% endblock %}
 {% block body %}
@@ -46,17 +63,10 @@
 <a href="{{ url_for('.compare',full=g.full,translation1=translation2,
 translation2=translation1,verse=verse) }}">Reverse order of languages</a>
 </div>
-<br>
 
+<!-- PARALLEL VERSES -->
 
-<script>
-var words1 = [{% for w in words1 %}"{{ w }}",{% endfor %}];
-var words2 = [{% for w in words2 %}"{{ w }}",{% endfor %}];
-var words12 = {{ words12 }};
-var words21 = {{ words21 }};
-var alignment = {{ alignment }};
-</script>
-
+<div class="bs-callout bs-callout-info">
 <div id='sent1'>
 <a href="{{ url_for('.listtranslation',full=g.full,translation=translation1) }}">
     <span class="label label-default">{{ translation1 }}</span>
@@ -66,22 +76,52 @@ var alignment = {{ alignment }};
 <a href="{{ url_for('.listtranslation',full=g.full,translation=translation2) }}">
     <span class="label label-default">{{ translation2 }}</span>
 </a></div>
-
-<div id="controlpanel" style="width: 200px;">
-<label>
-    Threshold: <input type="range" min="5" max="1000" value="20" name="maxslider" id="maxslider">
-</label>
 </div>
 
+<!-- MATRIX VISUALIZATION -->
+
+<div class="well">
+<form class="form-horizontal" role="form">
+  <div class="form-group">
+    <label for="maxslider" class="col-sm-2 control-label">Matrix threshold</label>
+    <div class="col-sm-2">
+      <input class="form-control" type="range" min="5" max="50" value="20" name="maxslider" id="maxslider">
+    </div>
+  </div>
+</form>
+
 <div id='vis'></div>
+</div>
 
+<!-- GLOSSING -->
 
+<div id="glossing" class="alert alert-success" style="padding-top: 0px;">
+<h3>Interactive glossing (click on cells in matrix)</h3>
+<table>
+<tr id="source">
+
+</tr>
+<tr id="target">
+
+</tr>
+
+</table>
+</div>
+
+<script>
+var words1 = [{% for w in words1 %}"{{ w|safe }}",{% endfor %}];
+var words2 = [{% for w in words2 %}"{{ w|safe }}",{% endfor %}];
+var words12 = {{ words12 }};
+var words21 = {{ words21 }};
+var alignment = {{ alignment }};
+</script>
 
 <script>
 
 var tip = d3.tip()
   .attr('class', 'd3-tip')
-  .offset([-10, 0])
+  .direction('e')
+  .offset([10, 13])
   .html(function(d) {
     return words1[d[1]] + " &rarr; " + words2[d[2]] + " [" 
             + Math.round(d[0]*100)/100 + "]" + "";
@@ -211,6 +251,31 @@ var colorScaleHi = d3.scale.linear()
                 })
             ;  
 
+    // prepare glossing table
+
+    d3.select("#source").selectAll("td")
+        .data(words1)
+        .enter()
+        .append("td")
+        .attr("class",function(d,i){
+            return "source_" + i;
+        })
+        .text(function(d,i){
+            return words1[i];
+        })
+        ;
+
+    d3.select("#target").selectAll("td")
+        .data(words1)
+        .enter()
+        .append("td")
+        .attr("class",function(d,i){
+            return "target_" + i;
+        })
+        ;
+
+
+
      //attach a SVG element to the document's body
       var mySVG = d3.select("#vis")
          .append("svg")
@@ -234,11 +299,6 @@ var colorScaleHi = d3.scale.linear()
       var heatmapRects = heatmapRow
          .selectAll(".rect")
          .data(function(d,i) {
-            /*
-            console.log(values,min,max);
-            colorScale.domain([min,max]);
-            colorScaleHi.domain([min,max]);
-            */
             return d;
          }).enter().append("svg:rect")
          .attr('width',w)
@@ -251,16 +311,7 @@ var colorScaleHi = d3.scale.linear()
             return (d[1] * h) + margin_top;
          })
          .style('fill',function(d,i) {
-            /*
-            minval = 0;
-            maxval = maxthresh;
-            newval = d[0];
-            if(newval < 2){ newval = 0;}
-            if(newval > maxthresh){ newval = maxthresh;}
-            //colorScale.domain([d3.min(values),d3.max(values)]);
-            colorScale.domain([minval,maxval]);
-            return colorScale(newval);
-            */
+
             return computeValue(d[0]);
          })
          .style('cursor','pointer')
@@ -280,6 +331,38 @@ var colorScaleHi = d3.scale.linear()
              d3.select(this).style('stroke','black');
              tip.hide(d);
              })
+         .on("click",function(d,i){
+            if(d3.select(this).attr("selected") == "Y"){
+                d3.select(this).style("fill",function(d){
+                    return computeValue(d[0]);
+                });
+                d3.select(this).attr("selected","N");
+
+                oldtext = $(".target_" + i).text();
+                newtext = oldtext.replace(words2[d[2]],'');
+                if(newtext.charAt(newtext.length-1) == '.'){
+                    newtext = newtext.substring(0,newtext.length-1);
+                }if(newtext.charAt(0) == '.'){
+                    newtext = newtext.substring(1);
+                }
+                $(".target_"+i).text(newtext);
+            }
+            else{
+                d3.select(this).attr("selected","Y");
+                d3.select(this).style("fill","red");
+
+                
+                if($(".target_"+i).text() == ""){
+                    $(".target_"+i).text(words2[d[2]]);
+                }
+                else{
+                    oldtext = $(".target_"+i).text();
+                    $(".target_"+i).text(oldtext+"."+words2[d[2]]);
+                }
+
+            }
+
+         })
          ;
          
       // Background label columns
@@ -318,14 +401,15 @@ var colorScaleHi = d3.scale.linear()
          .enter().append('svg:text')
          
          .attr('x', function(d,i) {
-            //return ((i + 0.5) * w) - 0.7 * w;
             return ((i + 0.5) * w + 1.01*margin_left) ;
          })
          .attr('y', 0.98*margin_top )
          
          .attr('class',function(d,i){return 'collabelText_' + i;})
          .style('font-size',function(){return h/2 + 'pt';})
-         .attr("transform", function(d,i) { return "rotate(-90," + (((i + 0.5) * w) + 1.01*margin_left ) + "," + 0.96 * margin_top + ")"; })
+         .attr("transform", function(d,i) { 
+            return "rotate(-90," + (((i + 0.5) * w) + 1.01*margin_left ) 
+                + "," + 0.96 * margin_top + ")"; })
          .text(function(d) {return d;});
          
       //label rows
@@ -349,18 +433,13 @@ var colorScaleHi = d3.scale.linear()
 
             d3.selectAll(".heatmapCell")
                 .style("fill",function(d,i){
-                    /*
-                    minval = 0;
-                    maxval = maxthresh;
-                    newval = d[0];
-                    if(newval < 2){ newval = 0;}
-                    if(newval > maxthresh){ newval = maxthresh;}
-                    //colorScale.domain([d3.min(values),d3.max(values)]);
-                    colorScale.domain([minval,maxval]);
-                    return colorScale(newval);
-                    */
-                    return computeValue(d[0]);
-
+                    
+                    if(d3.select(this).attr("selected") != "Y"){
+                        return computeValue(d[0]);
+                    }
+                    else{
+                        return "red";
+                    }
                 })
                 ;
 
@@ -372,7 +451,6 @@ var colorScaleHi = d3.scale.linear()
                     newval = oldvalue;
                     if(newval < 2){ newval = 0;}
                     if(newval > maxthresh){ newval = maxthresh;}
-                    //colorScale.domain([d3.min(values),d3.max(values)]);
                     colorScale.domain([minval,maxval]);
                     return colorScale(newval);
 
