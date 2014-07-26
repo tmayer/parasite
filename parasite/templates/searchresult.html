@@ -34,6 +34,14 @@
 </div>
 <script>
 
+var pageNumberFull = window.location.hash;
+pageNumber = parseInt(pageNumberFull.substring(1));
+var initPagen = 1
+if(pageNumber > 1){
+    initPagen = pageNumber;
+}
+
+
 function test(pageNumber)
 {
 
@@ -43,16 +51,18 @@ function test(pageNumber)
 
 }
 
+
 $(function() {
     $("#selector").pagination({
         items: {{ verses|length }},
         itemsOnPage: 10,
         cssStyle: 'compact-theme',
+        currentPage: initPagen,
         onPageClick: function(pageNumber){test(pageNumber)}
     });
 });
 
-test(1);
+test(initPagen);
 </script>
 
 {% endblock %}

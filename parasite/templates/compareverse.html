@@ -54,10 +54,10 @@
 {% endblock %}
 {% block body %}
 <h1 id="page_title">Comparison of {{ verse }} for <br>
-<a href="{{ url_for('.listtranslation',full=g.full,translation=translation1) }}">
-    {{ translation1 }}</a> and <br>
 <a href="{{ url_for('.listtranslation',full=g.full,translation=translation2) }}">
-{{ translation2 }}</a></h1>
+    {{ translation2 }}</a> and <br>
+<a href="{{ url_for('.listtranslation',full=g.full,translation=translation1) }}">
+{{ translation1 }}</a></h1>
 
 <div>
 <a href="{{ url_for('.compare',full=g.full,translation1=translation2,
@@ -69,18 +69,21 @@ translation2=translation1,verse=verse) }}">Reverse order of languages</a>
 <div class="bs-callout bs-callout-info">
 <div id='sent1'>
 <a href="{{ url_for('.listtranslation',full=g.full,translation=translation1) }}">
-    <span class="label label-default">{{ translation1 }}</span>
+    <span class="label label-default">{{ translation2 }}</span>
 </a></div>
 
 <div id='sent2'>
 <a href="{{ url_for('.listtranslation',full=g.full,translation=translation2) }}">
-    <span class="label label-default">{{ translation2 }}</span>
+    <span class="label label-default">{{ translation1 }}</span>
 </a></div>
 </div>
 
 <!-- MATRIX VISUALIZATION -->
 
 <div class="well">
+
+<div id='vis'></div>
+
 <form class="form-horizontal" role="form">
   <div class="form-group">
     <label for="maxslider" class="col-sm-2 control-label">Matrix threshold</label>
@@ -90,29 +93,49 @@ translation2=translation1,verse=verse) }}">Reverse order of languages</a>
   </div>
 </form>
 
-<div id='vis'></div>
 </div>
 
 <!-- GLOSSING -->
 
 <div id="glossing" class="alert alert-success" style="padding-top: 0px;">
-<h3>Interactive glossing (click on cells in matrix)</h3>
-<table>
-<tr id="source">
+<h3>Interactive glossing (click on the cells in the matrix)</h3>
 
-</tr>
-<tr id="target">
-
-</tr>
-
-</table>
+<div style="max-width: 700px;" id="glosstable">
 </div>
 
+<div id="transl" style="padding: 3px;">
+</div>
+
+<div>
+    <br>
+<button class="btn btn-primary btn-sm" onClick="copyToClipboard();">
+    copy glossing to clipboard
+</button>
+</div>
+
+</div>
+
+<!-- END DISPLAY -->
+
 <script>
-var words1 = [{% for w in words1 %}"{{ w|safe }}",{% endfor %}];
-var words2 = [{% for w in words2 %}"{{ w|safe }}",{% endfor %}];
-var words12 = {{ words12 }};
-var words21 = {{ words21 }};
+function copyToClipboard() {
+  var sourcewords = d3.selectAll('.source');  
+  var sourcew = sourcewords[0].map(function(d){
+    return d.innerText;
+  })
+  var targetwords = d3.selectAll('.target');
+  var targetw = targetwords[0].map(function(d){
+    return d.innerText;
+  })
+  text = sourcew.join("\t") + "\n" + targetw.join("\t") + "\n"
+    + $("#transl")[0].innerText;
+  window.prompt("Copy to clipboard: Ctrl+C or Cmd+C (for Mac OS), press Enter",text);
+}
+
+var words2 = [{% for w in words1 %}"{{ w|safe }}",{% endfor %}];
+var words1 = [{% for w in words2 %}"{{ w|safe }}",{% endfor %}];
+var words21 = {{ words12 }};
+var words12 = {{ words21 }};
 var alignment = {{ alignment }};
 </script>
 
@@ -253,24 +276,26 @@ var colorScaleHi = d3.scale.linear()
 
     // prepare glossing table
 
-    d3.select("#source").selectAll("td")
-        .data(words1)
-        .enter()
-        .append("td")
-        .attr("class",function(d,i){
-            return "source_" + i;
-        })
-        .text(function(d,i){
-            return words1[i];
-        })
-        ;
 
-    d3.select("#target").selectAll("td")
-        .data(words1)
+    for(var i=0; i<words1.length; i++){
+        if(i % 15 == 0){
+           $("#glosstable").append("<div style='display: table-row;'>");
+        }
+        $("#glosstable").append("<div style='display: table-cell; padding: 5px;'><span class='source source_" + i  + "'>"+ words1[i] + "&nbsp;</span><br><span class='target target_" + i + "'></span></div>");
+        if(i % 15 == 14 || i == words1.length-1){
+           $("#glosstable").append("</div><hr>");
+        }
+    }
+
+    d3.select("#transl").selectAll("span")
+        .data(words2)
         .enter()
-        .append("td")
+        .append("span")
         .attr("class",function(d,i){
-            return "target_" + i;
+            return "transl_" + i;
+        })
+        .html(function(d,i){
+            return "<i>" + words2[i] + '</i> ';
         })
         ;
 
@@ -338,26 +363,28 @@ var colorScaleHi = d3.scale.linear()
                 });
                 d3.select(this).attr("selected","N");
 
-                oldtext = $(".target_" + i).text();
+                oldtext = $(".target_" + d[1]).text();
                 newtext = oldtext.replace(words2[d[2]],'');
                 if(newtext.charAt(newtext.length-1) == '.'){
                     newtext = newtext.substring(0,newtext.length-1);
                 }if(newtext.charAt(0) == '.'){
                     newtext = newtext.substring(1);
                 }
-                $(".target_"+i).text(newtext);
+                $(".target_"+d[1]).text(newtext);
+                $(".transl_"+d[2]).css("color","inherit");
             }
             else{
                 d3.select(this).attr("selected","Y");
                 d3.select(this).style("fill","red");
+                $(".transl_"+d[2]).css("color","#428bca");
 
                 
-                if($(".target_"+i).text() == ""){
-                    $(".target_"+i).text(words2[d[2]]);
+                if($(".target_"+d[1]).text() == ""){
+                    $(".target_"+d[1]).text(words2[d[2]]);
                 }
                 else{
-                    oldtext = $(".target_"+i).text();
-                    $(".target_"+i).text(oldtext+"."+words2[d[2]]);
+                    oldtext = $(".target_"+d[1]).text();
+                    $(".target_"+d[1]).text(oldtext+"."+words2[d[2]]);
                 }
 
             }

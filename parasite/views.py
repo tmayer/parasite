@@ -20,7 +20,7 @@ class RegexConverter(BaseConverter):
 #cache = SimpleCache()
 
 # Defining some constants for handling relative URLs on the server
-BASE_URL = ""
+BASE_URL = "data/"
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 TEXTFILES_FOLDER = BASE_PATH + '/static/files/textfiles/'
 DATA_FOLDER = BASE_PATH + '/static/data/'
@@ -461,11 +461,11 @@ def compare(full,translation1,translation2,verse):
         for w1 in raw_words1] for w2 in raw_words2]
     words21 = [[poisson.get_assoc(w1.lower(),w2.lower()) 
         for w2 in raw_words2] for w1 in raw_words1]
-    words1 = raw_words1 #verse1 
-    words2 = raw_words2 #verse2 
+    words1 = [re.sub('"',"'",w) for w in raw_words1] 
+    words2 = [re.sub('"',"'",w) for w in raw_words2] 
 
     # create alignment array for JavaScript
-    alignment = [[[poisson.get_assoc(w1.lower(),w2.lower()),c1,c2] 
+    alignment = [[[poisson.get_assoc(w1.lower(),w2.lower()),c2,c1] 
         for c1,w1 in enumerate(raw_words1)] for c2,w2 in enumerate(raw_words2)]
 
     return render_template('compareverse.html',words1=words1,words2=words2,
