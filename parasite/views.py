@@ -1,13 +1,13 @@
-#from parasite import app
 from flask import Flask, render_template, url_for, redirect, g, request
+from flask import Response
 from werkzeug.routing import BaseConverter
-#from werkzeug.contrib.cache import SimpleCache
 import os
 import codecs
 import re
 import collections
 import json
 import reader, cooccurrence
+from zipfile import ZipFile,ZIP_DEFLATED
 
 # Use the RegexConverter function as a converter method for mapped urls
 class RegexConverter(BaseConverter):
@@ -16,15 +16,14 @@ class RegexConverter(BaseConverter):
         self.regex = items[0]
 
 
-# for caching the matrices
-#cache = SimpleCache()
-
 # Defining some constants for handling relative URLs on the server
-BASE_URL = "data/"
+BASE_URL = ""
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
-TEXTFILES_FOLDER = BASE_PATH + '/static/files/textfiles/'
+TEXTFILES_FOLDER = BASE_PATH + '/static/files/bible_corpus/corpus/'
 DATA_FOLDER = BASE_PATH + '/static/data/'
+STATIC_FOLDER = BASE_PATH + '/static/'
 ZIPFILES_FOLDER = BASE_PATH + '/static/files/zipfiles/'
+TEXTFILES_RELPATH = 'static/files/bible_corpus/corpus/'
 
 app = Flask(__name__,static_url_path='/static', static_folder = "static")
 app.debug = True
@@ -64,10 +63,16 @@ def index(full):
     languages = list()
     for c in codesbytranslations:
         currdict = dict()
-        currinfo = codebygeo[c]
-        currdict["latitude"] = currinfo[2]
-        currdict["longitude"] = currinfo[1]
-        currdict["name"] = currinfo[0]
+        # if ISO code is available in lang coords file
+        if c in codebygeo:
+            currinfo = codebygeo[c]
+            currdict["latitude"] = currinfo[2]
+            currdict["longitude"] = currinfo[1]
+            currdict["name"] = currinfo[0]
+        else:
+            currdict["latitude"] = 88
+            currdict["longitude"] = 160
+            currdict["name"] = ""
         currdict["code"] = c
         currdict["texts"] = codesbytranslations[c]
         languages.append(currdict)
@@ -79,7 +84,7 @@ def index(full):
     json.dump(outdict,oh)
     oh.close()
     
-    return render_template('index.html')
+    return render_template('index.html', nrtranslations=len(translations),nrlanguages=len(codesbytranslations))
     
 @app.route('/all/',defaults={'full': ''})
 @app.route('/full/all/',defaults={'full': full})
@@ -107,7 +112,7 @@ def listtranslations(full):
 
     # combine everything for the tabular representation
     translations2 = [(t,codebygeo[t[:3]][0],
-        codebyinfo[t[:3]][1]) for t in translations]
+        codebyinfo[t[:3]][1]) if t[:3] in codebygeo else (t,"","") for t in translations]
 
     return render_template('list.html', translations = translations2)
     
@@ -125,7 +130,7 @@ def search(full):
     if request.method == "POST":
         if request.form['target'] == "None":
             return redirect('/' + BASE_URL + g.full + 'search/' 
-                + request.form['source'] + '/' 
+                + request.form['source'] + '/'
                 + request.form['query'] + '/')
         else:
             return redirect('/' + BASE_URL + g.full + 'search/' 
@@ -219,7 +224,7 @@ def zipfile(translation,translationversion):
     """
     g.full = ''
 
-    return redirect('static/files/zipfiles/' + translation + "-v" 
+    return redirect(app.config["ZIPFILES_FOLDER"] + translation + "-v"
         + translationversion + '.zip')
 
 # /eng-x-bible-engkj/
@@ -408,7 +413,7 @@ def textfilefull(translation,translationversion):
     g.full = full
     g.baseurl = BASE_URL
 
-    return redirect('/' + g.baseurl + 'static/files/textfiles/' 
+    return redirect('/' + g.baseurl + 'static/files/bible_corpus/corpus/'
         + translation + "-v" + translationversion + '.txt')
 
 # /compare/eng-x-bible-engkj-v1/deu-x-bible-luther-v1/
@@ -468,11 +473,45 @@ def compare(full,translation1,translation2,verse):
     alignment = [[[poisson.get_assoc(w1.lower(),w2.lower()),c2,c1] 
         for c1,w1 in enumerate(raw_words1)] for c2,w2 in enumerate(raw_words2)]
 
+    # add additional global associated words
+    additional = [poisson.nbest2(w.lower(),c) for c,w in enumerate(raw_words2)]
+
     return render_template('compareverse.html',words1=words1,words2=words2,
         words12=str(words12),words21=str(words21),alignment=str(alignment),
-        verse=verse,translation1=translation1,translation2=translation2)
+        verse=verse,translation1=translation1,translation2=translation2,
+        additional = str(additional))
 
+@app.route("/full/zipall/", defaults={'full':full})
+def zipall(full):
+    g.full = full
+    g.baseurl = BASE_URL
 
+    reltranslations = list()
+
+    translations = ['-'.join(f.split("-")[:-1]) for f in
+        os.listdir(app.config['TEXTFILES_FOLDER'])
+        if f[-4:] == ".txt"]
+
+    for translation in translations:
+
+        # search for all available versions of the translation
+        versions = [f for f in os.listdir(app.config['TEXTFILES_FOLDER'])
+            if str(translation) in f]
+
+        # get the highest version number for this translation
+        versionnumbers = sorted([int(v[:-4].split('-')[-1][1:])
+            for v in versions],reverse=True)
+
+        reltranslations.append(translation + '-v' + str(versionnumbers[0]) + '.txt')
+
+    zip = ZipFile(STATIC_FOLDER + '/files/bible_corpus.zip','w',ZIP_DEFLATED)
+
+    for f in reltranslations[:100]:
+        zip.write(app.config['TEXTFILES_FOLDER'] + f,f)
+
+    zip.close()
+
+    return redirect('/' + g.baseurl + 'static/files/bible_corpus.zip')
 
 if __name__ == "__main__":
     app.run(debug=True)

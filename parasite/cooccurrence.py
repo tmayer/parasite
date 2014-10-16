@@ -3,29 +3,8 @@ __date__="2014-04-22"
 
 import reader
 import collections
-from scipy.sparse import lil_matrix, csc_matrix, coo_matrix, spdiags
-import numpy as np
-
-def cooccurrence(text1,text2):
-    """Counts the frequency of cooccurrence for all wordforms in the two texts.
-
-    :param text1: first text (dictionary of verse IDs as keys and verse texts 
-            as values)
-    :param text2: second text (dictionary of verse IDs as keys and verse texts 
-            as values)
-    """
-    
-    translation = collections.defaultdict(lambda: collections.defaultdict(int))
-    verses1 = text1.get_verses()
-    verses2 = text2.get_verses()
-    
-    for id,verse1 in verses1:__author__="Thomas Mayer"
-__date__="2014-04-22"
-
-import reader
-import collections
 try:
-    from scipy.sparse import lil_matrix, csc_matrix, coo_matrix, diags
+    from scipy.sparse import lil_matrix, csc_matrix, coo_matrix, spdiags
     import numpy as np
 except:
     pass
@@ -89,8 +68,8 @@ class Cooccurrence():
         Fx_old = np.array(O.sum(1)).flatten()
         Fy_old = np.array(O.sum(0)).flatten()
         
-        Fx = diags(Fx_old,0)
-        Fy = diags(Fy_old,0)
+        Fx = spdiags(Fx_old,0,Fx_old.shape[0],Fx_old.shape[0])
+        Fy = spdiags(Fy_old,0,Fy_old.shape[0],Fy_old.shape[0])
         
         Fx = Fx.tocsc()
         Fy = Fy.tocsc()
@@ -172,7 +151,66 @@ class Cooccurrence():
             max_index = row.indices[row.data.argmax()] if row.nnz else 0
             return self.wf2[max_index],row.data.max()
         except KeyError as k:
-            print("The word {} does not occur in the text.".format(k))
+            return None
+
+    def get_max_opp(self,word2):
+
+        m = self.assoc.tocsc()
+        try:
+            col = m[:,self.wfdict2[word2]]
+            max_index = col.indices[col.data.argmax()] if col.nnz else 0
+            return self.wf1[max_index],col.data.max()
+        except KeyError as k:
+            return None
+
+    def nbest(self,word,n=3):
+        """Provides the n best cooccurrence words of the association matrix
+        for the given input word
+
+        :param word: word from text1
+        :param n: number of words from text2 that are most strongly associated
+        """
+
+        m = self.assoc.tocsr()
+        outputs = list()
+        try:
+            index = m[self.wfdict2[word],:]
+            row = m[index,:]
+            sorted_indices = row.data.argsort()[-n:].tolist()
+            for item in sorted_indices:
+                val = row.data[item]
+                if 1: #val > 2:
+                    outputs.insert(0,[self.wf2[row.indices[item]],val])
+
+        except:
+            pass
+
+        return outputs
+
+    def nbest2(self,word,c,n=3):
+        """Provides the n best cooccurrence words of the association matrix
+        for the given input word
+
+        :param word: word from text2
+        :param n: number of words from text1 that are most strongly associated
+        """
+
+        m = self.assoc.tocsc()
+        outputs = list()
+        #try:
+        try:
+            index = self.wfdict2[word]       
+            col = m[:,index]
+            sorted_indices = col.data.argsort()[-n:].tolist()
+            for item in sorted_indices:
+                val = col.data[item]
+                if 1: #val > 2:
+                    outputs.insert(0,[str(self.wf1[col.indices[item]]),val,c])
+
+        except:
+            pass
+
+        return outputs
 
 
 if __name__ == "__main__":

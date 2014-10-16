@@ -2,5 +2,5 @@ parasite/static/files/
 .DS_Store
 flask/
 .idea/
-bible_corpus/
+corpus/
 zipfiles/

@@ -18,10 +18,10 @@
 <h1 id="page_title">Available translations</h1>
 
 {% if g.full != '' %}
-<!--
-<p>The complete data package including all translations can be downloaded 
-<a href='all.zip'>here</a> (File size appr. 500 MB!).</p>
--->
+
+<p>The complete Bible corpus including all translations can be downloaded
+<a href='{{ url_for('.zipall', full=g.full) }}'>here</a> (Note that it may take a few minutes before the file is generated!).</p>
+
 {% endif %}
 
 <table border="0" id="myTable" class="tablesorter tablelisting table-striped table-bordered">

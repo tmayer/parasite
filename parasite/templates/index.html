@@ -26,8 +26,8 @@
 <div style="padding-top: 20px; text-align: justify; ">	
 	
 	
-<p style="font-size: 110%;">The first version of our Bible corpus contains 917 unique
-	translations, which have been assigned 811 different ISO-639-3
+<p style="font-size: 110%;">The Bible corpus contains {{ nrtranslations }} unique
+	translations, which have been assigned {{ nrlanguages }} different ISO-639-3
 	codes. The areal distribution of the languages in the corpus is
 	shown in the map above. If you mouse over a language location or 
 	search for a particular language in the search box, you will get
@@ -41,24 +41,12 @@
 <p style="font-size: 110%;">
 	In the 917 translations we found 43,890 different verse numbers 
 	(including apocrypha books that are not in the biblical canon of 
-	the 66 books). Some verses only occur in a 
-	very small number of languages. The verse that is most widely 
-	available in the texts is Mark 1:7, which has entries in 903 
-	translations.
-	
+	the 66 books). The metadata have been collected with the help of
+    Frederike Urke.
 </p>
-<p style="font-size: 110%;">
-	The number of verses per translation varies widely. The average 
-	number of verses per translation is 10,185 (with a standard 
-	deviation of 7,062 verses). The average number of words per 
-	translation is 304,345 (standard 
-	deviation: 192,767). The average vocabulary size (number of types) 
-	is 14,542 (standard deviation: 13,130). The number of words and 
-	the size of the vocabulary for each text of course varies with 
-	the number of verses that are available and with the writing 
-	system. 
-</p>
-	
+
+
+
 </div>
 
 <script type="text/javascript">
@@ -66,12 +54,12 @@
     // size of svg 
     var width = 0.65 * $(document).width();
     var height = 0.35 * $(document).width();
-    console.log(width, height);
+    //console.log(width, height);
     var radSmall = 3;
     var radFocus = 5;
     var scaleFactor = 1;
     var mapscale = width/6.5;
-    console.log(mapscale);
+    //console.log(mapscale);
     // projection settings 
     var projection = d3.geo.equirectangular() 
         //.center([38, -25 ]) 
