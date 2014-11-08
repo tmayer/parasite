@@ -17,7 +17,7 @@ class RegexConverter(BaseConverter):
 
 
 # Defining some constants for handling relative URLs on the server
-BASE_URL = ""
+BASE_URL = "data/"
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 TEXTFILES_FOLDER = BASE_PATH + '/static/files/bible_corpus/corpus/'
 DATA_FOLDER = BASE_PATH + '/static/data/'
@@ -52,6 +52,7 @@ def index(full):
     translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
         os.listdir(app.config['TEXTFILES_FOLDER']) 
         if f[-4:] == ".txt"}))
+    translationtexts = list({"-".join(t) for t in translations})
     codesbytranslations = collections.defaultdict(list)
     for t in translations:
         codesbytranslations[t[:3]].append(t)
@@ -111,8 +112,14 @@ def listtranslations(full):
     codebygeo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh2[1:]}
 
     # combine everything for the tabular representation
-    translations2 = [(t,codebygeo[t[:3]][0],
-        codebyinfo[t[:3]][1]) if t[:3] in codebygeo else (t,"","") for t in translations]
+    #translations2 = [(t,codebygeo[t[:3]][0],
+    #    codebyinfo[t[:3]][1]) if (t[:3] in codebygeo and t[:3] in codebyinfo) else (t,"","") for t in translations]
+    translations2 = list()
+    for t in translations:
+        if t[:3] in codebygeo and t[:3] in codebyinfo and len(codebyinfo[t[:3]]) > 1:
+            translations2.append((t,codebygeo[t[:3]][0],codebyinfo[t[:3]][1]))
+        else:
+            translations2.append((t,"",""))
 
     return render_template('list.html', translations = translations2)
     
@@ -223,8 +230,9 @@ def zipfile(translation,translationversion):
     Redirects to the respective zip datapackage for download
     """
     g.full = ''
+    g.baseurl = BASE_URL
 
-    return redirect(app.config["ZIPFILES_FOLDER"] + translation + "-v"
+    return redirect('/' + g.baseurl + 'static/files/zipfiles/' + translation + "-v"
         + translationversion + '.zip')
 
 # /eng-x-bible-engkj/

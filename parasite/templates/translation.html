@@ -12,7 +12,7 @@
 	{% if inf[0] == "URL" %}
 		<tr><td valign="top" style='text-transform: capitalize;width: 150px;'>{{ inf[0] }}</td>
 		<td>
-		{% if inf[1] == "Not available" %}
+		{% if "available" in inf[1] %}
         Not available
         {% else %}
             {% for url in urls %}
