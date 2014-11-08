@@ -2,6 +2,7 @@ from flask import Flask, render_template, url_for, redirect, g, request
 from flask import Response
 from werkzeug.routing import BaseConverter
 import os
+import os.path
 import codecs
 import re
 import collections
@@ -46,7 +47,7 @@ def index(full):
     translations will be shown on the world map.
     """
     g.full = full
-    
+
     # gather information for json file for map display with geo coords 
     # for all languages
     translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
@@ -165,11 +166,15 @@ def searchcompare(full,text1,text2,query):
     # clean up query term
     query = query.replace('+',' ')
 
+    path1 = app.config['TEXTFILES_FOLDER'] + text1 + '.txt'
+    path2 = app.config['TEXTFILES_FOLDER'] + text2 + '.txt'
+    if not (os.path.isfile(path1) and os.access(path1, os.R_OK) and \
+            os.path.isfile(path2) and os.access(path2, os.R_OK)):
+        return render_template('error.html',error="One of the bibles is not available"), 404
+
     # open both files
-    fh1 = codecs.open(app.config['TEXTFILES_FOLDER'] + text1 
-        + '.txt','r','utf-8').readlines()
-    fh2 = codecs.open(app.config['TEXTFILES_FOLDER'] + text2 
-        + '.txt','r','utf-8').readlines()
+    fh1 = codecs.open(path1,'r','utf-8').readlines()
+    fh2 = codecs.open(path2,'r','utf-8').readlines()
 
     # check whether query term is a valid verse ID
     # if verse ID => search for respective verse
@@ -212,9 +217,12 @@ def searchresults(full,text1,query):
     # clean up query term
     query = query.replace('+',' ')
 
+    path1 = app.config['TEXTFILES_FOLDER'] + text1 + '.txt'
+    if not (os.path.isfile(path1) and os.access(path1, os.R_OK)):
+        return render_template('error.html',error="Bible text is not available."), 404
+
     # collect all verses containing the query term
-    fh1 = codecs.open(app.config['TEXTFILES_FOLDER'] + text1 
-        + '.txt','r','utf-8').readlines()
+    fh1 = codecs.open(path1,'r','utf-8').readlines()
     verses1 = [v.strip().split('\t') for v in fh1 if query in v and 
         not v.strip().startswith('#')]
     
@@ -260,8 +268,7 @@ def listtranslation(full,translation):
             translation=translation,
             translationversion=str(versionnumbers[0])))
     except:
-        return render_template('error.html',
-            error="Bible text not available")
+        return render_template('error.html', error="Bible text not available"), 404
 
 # /eng-x-bible-engkj-v0/    
 @app.route('/<translation>-v<regex("\d+"):translationversion>/',defaults={'full': ''})
@@ -295,7 +302,7 @@ def listtranslationversion(full,translation,translationversion):
             translationversion=translation+ "-v" + translationversion,
             version=translationversion)
     except:
-        return render_template('error.html',error="Bible version not available")
+        return render_template('error.html',error="Bible version not available"), 404
     
 
 # /eng-x-bible-engkj-v0/41/        
@@ -310,12 +317,12 @@ def listbook(full,translation,book):
     g.baseurl = BASE_URL
 
     # only show books's chapters when full access (except Mark)
-    if g.full == '' and book != '41':
-        return render_template("error.html",error="Book not available")
+    path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
+    if g.full == '' and book != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
+        return render_template("error.html",error="Book not available"), 404
 
     # get all chapters for the respective book
-    fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
-        'r','utf-8').readlines()
+    fh = codecs.open(path,'r','utf-8').readlines()
     verses = [l.split('\t',1)[0] for l in fh if l[0] != "#" and l[:2] == book]
     rel_verses = sorted(list({v[2:5] for v in verses}))
 
@@ -323,7 +330,7 @@ def listbook(full,translation,book):
         return render_template('book.html',translation=translation,book=book,
             chapters=rel_verses)
     else:
-        return render_template("error.html",error="No verses available")
+        return render_template("error.html",error="No verses available"), 404
 
 # /eng-x-bible-engkj-v0/41/001/            
 @app.route('/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/',
@@ -340,11 +347,13 @@ def listchapter(full,translation,book,chapter):
 
     # only show chapter's verses when full access (except Mark)
     if g.full == '' and book != '41':
-        return render_template("error.html",error="Chapter not available")
+        return render_template("error.html",error="Chapter not available"), 404
 
     # get all verses for the respective chapter
-    fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
-        'r','utf-8').readlines()
+    path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
+    if not (os.path.isfile(path) and os.access(path, os.R_OK)):
+        return render_template("error.html",error="Bible not available"), 404
+    fh = codecs.open(path,'r','utf-8').readlines()
     verses = [l.split('\t',1) for l in fh if l[0] != "#" 
         and l[:5] == book + chapter]
     rel_verses = sorted(verses)
@@ -353,7 +362,7 @@ def listchapter(full,translation,book,chapter):
         return render_template("chapter.html",translation=translation,
             book=book,chapter=chapter,verses=rel_verses)
     else:
-        return render_template("error.html",error="No verses available")
+        return render_template("error.html",error="No verses available"), 404
             
 # /eng-x-bible-engkj-v0/41/001/001/ 
 @app.route('/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/<regex("\d{3}"):verse>/',
@@ -368,20 +377,19 @@ def listverse(full,translation,book,chapter,verse):
     g.full = full
     g.baseurl = BASE_URL
 
+    path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
     # only show the verse when full access (except Mark)
-    if g.full == '' and book != '41':
-        return render_template("error.html",error="Verse not available")
-    else:
-        fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
-        'r','utf-8').readlines()
-        verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() 
-            for l in fh if l[0] != "#"}
+    if g.full == '' and book != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
+        return render_template("error.html",error="Verse not available"), 404
+
+    fh = codecs.open(path,'r','utf-8').readlines()
+    verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() for l in fh if l[0] != "#"}
     
     if book+chapter+verse in verses:
         return render_template("verse.html",translation=translation,book=book,
         chapter=chapter,verse=verse,versetext=verses[book+chapter+verse])
     else:
-        return render_template("error.html",error="No verses available")
+        return render_template("error.html",error="No verses available"), 404
             
 # /eng-x-bible-engkj-v0/41001001/ 
 @app.route('/<translation>/<regex("\d{8}"):verse>/',defaults={'full': ''})
@@ -395,14 +403,12 @@ def listverseflat(full,translation,verse):
     g.full = full
     g.baseurl = BASE_URL
 
+    path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
     # only show the verse when full access (except Mark)
-    if g.full == '' and verse[:2] != '41':
+    if g.full == '' and verse[:2] != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
         return render_template("error.html",error="Verse not available")
-    else:
-        fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation + '.txt',
-        'r','utf-8').readlines()
-        verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() 
-            for l in fh if l[0] != "#"}
+    fh = codecs.open(path, 'r','utf-8').readlines()
+    verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() for l in fh if l[0] != "#"}
     
     if verse in verses:
         return render_template("verse.html",translation=translation,
@@ -454,21 +460,28 @@ def compare(full,translation1,translation2,verse):
     else:
         poisson = assoc
     """
+    path1 = app.config['TEXTFILES_FOLDER'] + translation1 + '.txt'
+    path2 = app.config['TEXTFILES_FOLDER'] + translation2 + '.txt'
+    
+    if not (os.path.isfile(path1) and os.access(path1, os.R_OK) and \
+            os.path.isfile(path2) and os.access(path2, os.R_OK)):
+        return render_template('error.html',error="One of the bibles is not available"), 404
 
     # read texts in ParText objects
-    text1 = reader.ParText(app.config['TEXTFILES_FOLDER'] 
-        + translation1 + '.txt')
-    text2 = reader.ParText(app.config['TEXTFILES_FOLDER'] 
-        + translation2 + '.txt')
+    text1 = reader.ParText(path1)
+    text2 = reader.ParText(path2)
 
     # create cooccurrence object
     poisson = cooccurrence.Cooccurrence(text1,text2,method="poisson")
 
     # extract words and association measures from the objects
-    raw_words1 = poisson.text1.get_raw_verses()[int(verse)]
-    raw_words2 = poisson.text2.get_raw_verses()[int(verse)]
-    verse1 = poisson.text1[int(verse)]
-    verse2 = poisson.text2[int(verse)]
+    try:
+        verse = int(verse)
+        raw_words1 = poisson.text1.get_raw_verses()[verse]
+        raw_words2 = poisson.text2.get_raw_verses()[verse]
+    except (KeyError, ValueError):
+        return render_template('error.html',error="The verse is not available"), 404
+        
 
     words12 = [[poisson.get_assoc(w1.lower(),w2.lower()) 
         for w1 in raw_words1] for w2 in raw_words2]
