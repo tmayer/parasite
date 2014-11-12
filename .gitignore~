@@ -1,6 +1,0 @@
-parasite/static/files/
-.DS_Store
-flask/
-.idea/
-corpus/
-zipfiles/
