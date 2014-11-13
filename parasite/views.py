@@ -222,7 +222,7 @@ def zipfile(translation,translationversion):
     URL: /translation.zip/
     Redirects to the respective zip datapackage for download
     """
-    return redirect(app.config["ZIPFILES_FOLDER"] + translation + "-v"
+    return redirect(app.config["ZIPFILES_BASE_URL"] + translation + "-v"
         + translationversion + '.zip')
 
 # /eng-x-bible-engkj/
