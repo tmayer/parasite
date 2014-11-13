@@ -17,10 +17,10 @@
 
 <h1 id="page_title">Available translations</h1>
 
-{% if g.full != '' %}
+{% if full != '' %}
 
 <p>The complete Bible corpus including all translations can be downloaded
-<a href='{{ url_for('.zipall', full=g.full) }}'>here</a> (Note that it may take a few minutes before the file is generated!).</p>
+<a href='{{ url_for('.zipall', full=full) }}'>here</a> (Note that it may take a few minutes before the file is generated!).</p>
 
 {% endif %}
 
@@ -36,7 +36,7 @@
 <tbody>
 {% for trans in translations %}
 	<tr><td style="text-align:right;color: black;">{{ loop.index }}</td>
-	<td><a href='{{ url_for('.listtranslation', full=g.full, translation=trans[0]) }}'>{{ trans[0] }}</a> </td>
+	<td><a href='{{ url_for('.listtranslation', full=full, translation=trans[0]) }}'>{{ trans[0] }}</a> </td>
 	<td style='color: black;'>{{ trans[1] }} </td><td style='color: black;'>{{ trans[2] }}</td></tr>
 {% endfor %}
 

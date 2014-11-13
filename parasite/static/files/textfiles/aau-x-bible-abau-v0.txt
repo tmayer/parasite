@@ -1,11 +1,11 @@
-#language_name:      Abau
-#ISO 639-3:          aau
-#year_short:         2006
-#year_long:          
-#title:              The New Testament in Abau
-#URL:                http://pngscriptures.org/aau/
-#copyright_short:    © Wycliffe Bible Translators, Inc. 2006
-#copyright_long:     Print publisher: Wycliffe Bible Translators Electronic publisher: PNG Bible Translation Association Translation by: Wycliffe Bible Translators  This translation is made available to you under the terms of the Creative Commons Attribution-Noncommercial-No Derivative Works license. In addition, you have permission to port the text to different file formats, as long as you don't change any of the text or punctuation of the Bible.  Pictures included with Scriptures and other documents on this site are licensed just for use with those Scriptures and documents. For other uses, please contact the respective copyright owners.  You may share, copy, distribute, transmit, and extract portions or quotations from this work, provided that: You include the above copyright information and that you make it clear that the work came from http://pngscriptures.org/. You do not sell this work for a profit. You do not make any derivative works that change any of the actual words or punctuation of the Scriptures. Permissions beyond the scope of this license may be available if you contact us with your request. If you want to revise a translation, use a translation in an adaptation, or use a translation commercially, we will relay your request to the appropriate copyright owner.
+# language_name:      Abau
+# ISO 639-3:          aau
+# year_short:         2006
+# year_long:          
+# title:              The New Testament in Abau
+# URL:                http://pngscriptures.org/aau/
+# copyright_short:    © Wycliffe Bible Translators, Inc. 2006
+# copyright_long:     Print publisher: Wycliffe Bible Translators Electronic publisher: PNG Bible Translation Association Translation by: Wycliffe Bible Translators  This translation is made available to you under the terms of the Creative Commons Attribution-Noncommercial-No Derivative Works license. In addition, you have permission to port the text to different file formats, as long as you don't change any of the text or punctuation of the Bible.  Pictures included with Scriptures and other documents on this site are licensed just for use with those Scriptures and documents. For other uses, please contact the respective copyright owners.  You may share, copy, distribute, transmit, and extract portions or quotations from this work, provided that: You include the above copyright information and that you make it clear that the work came from http://pngscriptures.org/. You do not sell this work for a profit. You do not make any derivative works that change any of the actual words or punctuation of the Scriptures. Permissions beyond the scope of this license may be available if you contact us with your request. If you want to revise a translation, use a translation in an adaptation, or use a translation commercially, we will relay your request to the appropriate copyright owner.
 40001001	Mamey okukwe Jisas Krais so nopwey-om me ma mey hok non. Jisas Krais hiykwe Devit so ney-nona. Devit hiykwe Abraham so ney-nona. [1 Sto 17:11; Stt 22:18]
 40001002	Abraham hiykwe Aisak so orih. Aisak hiykwe Jekop so orih. Jekop hiykwe Juda o, hyo nay-ih-nayh o, hmo orih-nawp.
 40001003	Juda hiykwe Peres, Sera leys so orih. Hoho pouh kokwe Tamar. Peres hiykwe Hesron so orih. Hesron hiykwe Ram so orih.

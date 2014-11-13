@@ -4,7 +4,7 @@
     <meta charset="utf-8"> 
     <link rel="stylesheet" type="text/css" href="/static/style.css" />
     {% block robots %}
-    {% if g.full != '' %}
+    {% if full != '' %}
     	<meta name="robots" content="noindex,nofollow" />
     {% endif %}
     {% endblock %}
@@ -48,17 +48,17 @@
 			<div style="position: relative; left: 10px; margin-top: -20px;">
 				<ul id="nav">
 					<li class="data">
-						<a href="/{{ g.full }}" title="Parallel Bible Corpus">
+						<a href="/{{ full }}" title="Parallel Bible Corpus">
 						Parallel Bible Corpus</a>
 					</li>
 					<li class="data">
-						<a href="/{{ g.full }}all/" 
+						<a href="/{{ full }}all/" 
 						title="Parallel Bible Corpus">
 						List of all translations
 						</a>
 					</li>
 					<li class="data">
-						<a href="/{{ g.full }}search/" 
+						<a href="/{{ full }}search/" 
 						title="Parallel Bible Corpus">
 						Search
 						</a>

@@ -1,14 +1,18 @@
-from flask import Flask, render_template, url_for, redirect, g, request
-from flask import Response
-from werkzeug.routing import BaseConverter
+import sys
 import os
 import os.path
 import codecs
 import re
 import collections
 import json
-import reader, cooccurrence
+import traceback
+
+from werkzeug.routing import BaseConverter
+from flask import Flask, render_template, url_for, redirect, request, g
 from zipfile import ZipFile,ZIP_DEFLATED
+
+import reader, cooccurrence
+
 
 # Use the RegexConverter function as a converter method for mapped urls
 class RegexConverter(BaseConverter):
@@ -17,20 +21,8 @@ class RegexConverter(BaseConverter):
         self.regex = items[0]
 
 
-# Defining some constants for handling relative URLs on the server
-BASE_URL = ""
-BASE_PATH = os.path.dirname(os.path.realpath(__file__))
-TEXTFILES_FOLDER = BASE_PATH + '/static/files/bible_corpus/corpus/'
-DATA_FOLDER = BASE_PATH + '/static/data/'
-STATIC_FOLDER = BASE_PATH + '/static/'
-ZIPFILES_FOLDER = BASE_PATH + '/static/files/zipfiles/'
-TEXTFILES_RELPATH = 'static/files/bible_corpus/corpus/'
-
 app = Flask(__name__,static_url_path='/static', static_folder = "static")
-app.debug = True
-app.config['TEXTFILES_FOLDER'] = TEXTFILES_FOLDER
-app.config['ZIPFILES_FOLDER'] = ZIPFILES_FOLDER
-app.config['DATA_FOLDER'] = DATA_FOLDER
+app.config.from_pyfile('config.py')
 app.url_map.converters['regex'] = RegexConverter
 
 
@@ -46,7 +38,6 @@ def index(full):
     for the languages that are included in that folder so that all 
     translations will be shown on the world map.
     """
-    g.full = full
 
     # gather information for json file for map display with geo coords 
     # for all languages
@@ -85,7 +76,8 @@ def index(full):
     json.dump(outdict,oh)
     oh.close()
     
-    return render_template('index.html', nrtranslations=len(translations),nrlanguages=len(codesbytranslations))
+    return render_template('index.html', full=full,
+                           nrtranslations=len(translations),nrlanguages=len(codesbytranslations))
     
 @app.route('/all/',defaults={'full': ''})
 @app.route('/full/all/',defaults={'full': full})
@@ -95,8 +87,6 @@ def listtranslations(full):
     Gathers all translations from the textfile folder and gets the information
     about their genealogy to be shown in the tabular representation.
     """
-    g.full = full
-    g.baseurl = BASE_URL
     translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
             os.listdir(app.config['TEXTFILES_FOLDER']) 
             if f[-4:] == ".txt"}))
@@ -115,7 +105,7 @@ def listtranslations(full):
     translations2 = [(t,codebygeo[t[:3]][0],
         codebyinfo[t[:3]][1]) if t[:3] in codebygeo else (t,"","") for t in translations]
 
-    return render_template('list.html', translations = translations2)
+    return render_template('list.html', full=full, translations=translations2)
     
 @app.route('/search/',methods=['POST', 'GET'],defaults={'full': ''})
 @app.route('/full/search/',methods=['POST', 'GET'],defaults={'full': full})
@@ -125,16 +115,15 @@ def search(full):
     Provides either search form with all translations with GET or redirects
     to the respective GET search URL with POST
     """
-    g.full = full
 
     # for POST redirect to respective GET URL
     if request.method == "POST":
         if request.form['target'] == "None":
-            return redirect('/' + BASE_URL + g.full + 'search/' 
+            return redirect('/' + app.config['BASE_URL'] + full + 'search/' 
                 + request.form['source'] + '/'
                 + request.form['query'] + '/')
         else:
-            return redirect('/' + BASE_URL + g.full + 'search/' 
+            return redirect('/' + app.config['BASE_URL'] + full + 'search/' 
                 + request.form['source'] + '/' 
                 + request.form['target'] + '/' 
                 + request.form['query'] + '/')
@@ -144,7 +133,7 @@ def search(full):
         os.listdir(app.config['TEXTFILES_FOLDER']) 
         if f[-4:] == ".txt"])
         
-        return render_template('search.html',translations=translations)
+        return render_template('search.html', full=full, translations=translations)
             
 @app.route('/search/<text1>/<text2>/<query>/',defaults={'full': ''})
 @app.route('/full/search/<text1>/<text2>/<query>/',defaults={'full': full})
@@ -154,7 +143,6 @@ def searchcompare(full,text1,text2,query):
     Search a term in one translation and return all verses in which it occurs
     together with the parallel verses in the second translation.
     """
-    g.full = full
 
     # clean up query term
     query = query.replace('+',' ')
@@ -163,7 +151,7 @@ def searchcompare(full,text1,text2,query):
     path2 = app.config['TEXTFILES_FOLDER'] + text2 + '.txt'
     if not (os.path.isfile(path1) and os.access(path1, os.R_OK) and \
             os.path.isfile(path2) and os.access(path2, os.R_OK)):
-        return render_template('error.html',error="One of the bibles is not available"), 404
+        return render_template('error.html', full=full, error="One of the bibles is not available"), 404
 
     # open both files
     fh1 = codecs.open(path1,'r','utf-8').readlines()
@@ -193,9 +181,8 @@ def searchcompare(full,text1,text2,query):
 
     verses = zip(verses1rel,verses2)
             
-    return render_template("compare.html",query=query,
-        verses=verses,
-        text1=text1,text2=text2)
+    return render_template("compare.html", full=full, query=query, verses=verses,
+                           text1=text1, text2=text2)
         
 @app.route('/search/<text1>/<query>/',defaults={'full': ''})
 @app.route('/full/search/<text1>/<query>/',defaults={'full': full})
@@ -205,22 +192,21 @@ def searchresults(full,text1,query):
     Lists all the verses containing the given search query for the given 
     translation
     """
-    g.full = full
 
     # clean up query term
     query = query.replace('+',' ')
 
     path1 = app.config['TEXTFILES_FOLDER'] + text1 + '.txt'
     if not (os.path.isfile(path1) and os.access(path1, os.R_OK)):
-        return render_template('error.html',error="Bible text is not available."), 404
+        return render_template('error.html', full=full, error="Bible text is not available."), 404
 
     # collect all verses containing the query term
     fh1 = codecs.open(path1,'r','utf-8').readlines()
     verses1 = [v.strip().split('\t') for v in fh1 if query in v and 
         not v.strip().startswith('#')]
     
-    return render_template("searchresult.html",translation=text1,
-        query=query,verses=verses1)
+    return render_template("searchresult.html", full=full, translation=text1,
+        query=query, verses=verses1)
         
     
 # /eng-x-bible-engkj-v0.zip/
@@ -230,8 +216,6 @@ def zipfile(translation,translationversion):
     URL: /translation.zip/
     Redirects to the respective zip datapackage for download
     """
-    g.full = ''
-
     return redirect(app.config["ZIPFILES_FOLDER"] + translation + "-v"
         + translationversion + '.zip')
 
@@ -244,9 +228,6 @@ def listtranslation(full,translation):
     Searches for the highest version number for the respective translation
     and redirects to its listtranslationversion.
     """
-    g.full = full
-    g.baseurl = BASE_URL
-
     try:
         # search for all available versions of the translation
         versions = [f for f in os.listdir(app.config['TEXTFILES_FOLDER']) 
@@ -256,11 +237,12 @@ def listtranslation(full,translation):
         versionnumbers = sorted([int(v[:-4].split('-')[-1][1:]) 
             for v in versions],reverse=True)
 
-        return redirect(url_for('.listtranslationversion',full=g.full,
+        return redirect(url_for('.listtranslationversion',full=full,
             translation=translation,
             translationversion=str(versionnumbers[0])))
-    except:
-        return render_template('error.html', error="Bible text not available"), 404
+    except Exception, e:
+        app.logger.warn(traceback.format_exc())
+        return render_template('error.html', full=full, error="Bible text not available"), 404
 
 # /eng-x-bible-engkj-v0/    
 @app.route('/<translation>-v<regex("\d+"):translationversion>/',defaults={'full': ''})
@@ -271,16 +253,16 @@ def listtranslationversion(full,translation,translationversion):
     Lists all metadata for the respective translation version together with
     links to the datapackage and (sample) text.
     """
-    g.full = full
-    g.baseurl = BASE_URL
     try:
-        fh = codecs.open(app.config['TEXTFILES_FOLDER'] + translation 
-            + "-v" + translationversion + '.txt',
-            'r','utf-8').readlines()
+        path = app.config['TEXTFILES_FOLDER'] + translation + "-v" + translationversion + '.txt'
+        if not (os.path.isfile(path) and os.access(path, os.R_OK)):
+            return render_template('error.html', full=full, error="Bible text does not exist."), 404
+        with codecs.open(path, 'r','utf-8') as f:
+            fh = f.readlines()
 
         # get all books for this translation version  
         books = []
-        if g.full != '':
+        if full != '':
             books = sorted(list({l[:2] for l in fh if l[0] != "#" 
                 and re.match('\d{2}',l[:2])}))
 
@@ -289,12 +271,13 @@ def listtranslationversion(full,translation,translationversion):
         urlsinfo = [l[1] for l in info if l[0] == "URL"]
         urls = urlsinfo[0].split("<br>")
 
-        return render_template('translation.html',
+        return render_template('translation.html', full=full,
             translation=translation,info=info,books=books,urls=urls,
             translationversion=translation+ "-v" + translationversion,
             version=translationversion)
-    except:
-        return render_template('error.html',error="Bible version not available"), 404
+    except Exception, e:
+        app.logger.warn(traceback.format_exc())
+        return render_template('error.html', full=full, error="Bible version not available"), 500
     
 
 # /eng-x-bible-engkj-v0/41/        
@@ -305,13 +288,11 @@ def listbook(full,translation,book):
     URL: /translationversion/book/
     Lists all chapters of the translation's book
     """
-    g.full = full
-    g.baseurl = BASE_URL
 
     # only show books's chapters when full access (except Mark)
     path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
-    if g.full == '' and book != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
-        return render_template("error.html",error="Book not available"), 404
+    if full == '' and book != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
+        return render_template("error.html", full=full, error="Book not available"), 404
 
     # get all chapters for the respective book
     fh = codecs.open(path,'r','utf-8').readlines()
@@ -319,10 +300,10 @@ def listbook(full,translation,book):
     rel_verses = sorted(list({v[2:5] for v in verses}))
 
     if verses:
-        return render_template('book.html',translation=translation,book=book,
+        return render_template('book.html', full=full, translation=translation, book=book,
             chapters=rel_verses)
     else:
-        return render_template("error.html",error="No verses available"), 404
+        return render_template("error.html", full=full, error="No verses available"), 404
 
 # /eng-x-bible-engkj-v0/41/001/            
 @app.route('/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/',
@@ -334,27 +315,25 @@ def listchapter(full,translation,book,chapter):
     URL: /translationversion/book/chapter/
     Lists all verses of the translation's chapter
     """
-    g.full = full
-    g.baseurl = BASE_URL
 
     # only show chapter's verses when full access (except Mark)
-    if g.full == '' and book != '41':
+    if full == '' and book != '41':
         return render_template("error.html",error="Chapter not available"), 404
 
     # get all verses for the respective chapter
     path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
     if not (os.path.isfile(path) and os.access(path, os.R_OK)):
-        return render_template("error.html",error="Bible not available"), 404
+        return render_template("error.html", full=full, error="Bible not available"), 404
     fh = codecs.open(path,'r','utf-8').readlines()
     verses = [l.split('\t',1) for l in fh if l[0] != "#" 
         and l[:5] == book + chapter]
     rel_verses = sorted(verses)
     
     if verses:
-        return render_template("chapter.html",translation=translation,
+        return render_template("chapter.html", full=full, translation=translation,
             book=book,chapter=chapter,verses=rel_verses)
     else:
-        return render_template("error.html",error="No verses available"), 404
+        return render_template("error.html", full=full, error="No verses available"), 404
             
 # /eng-x-bible-engkj-v0/41/001/001/ 
 @app.route('/<translation>/<regex("\d{2}"):book>/<regex("\d{3}"):chapter>/<regex("\d{3}"):verse>/',
@@ -366,22 +345,19 @@ def listverse(full,translation,book,chapter,verse):
     URL: /translationversion/book/chapter/verse
     Shows the given verse
     """
-    g.full = full
-    g.baseurl = BASE_URL
-
     path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
     # only show the verse when full access (except Mark)
-    if g.full == '' and book != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
+    if full == '' and book != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
         return render_template("error.html",error="Verse not available"), 404
 
     fh = codecs.open(path,'r','utf-8').readlines()
     verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() for l in fh if l[0] != "#"}
     
     if book+chapter+verse in verses:
-        return render_template("verse.html",translation=translation,book=book,
+        return render_template("verse.html", full=full, translation=translation,book=book,
         chapter=chapter,verse=verse,versetext=verses[book+chapter+verse])
     else:
-        return render_template("error.html",error="No verses available"), 404
+        return render_template("error.html", full=full, error="No verses available"), 404
             
 # /eng-x-bible-engkj-v0/41001001/ 
 @app.route('/<translation>/<regex("\d{8}"):verse>/',defaults={'full': ''})
@@ -392,22 +368,19 @@ def listverseflat(full,translation,verse):
     URL: /translationversion/verse/
     Shows the given verse with flat ID
     """
-    g.full = full
-    g.baseurl = BASE_URL
-
     path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
     # only show the verse when full access (except Mark)
-    if g.full == '' and verse[:2] != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
-        return render_template("error.html",error="Verse not available")
+    if full == '' and verse[:2] != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
+        return render_template("error.html", full=full, error="Verse not available"), 404
     fh = codecs.open(path, 'r','utf-8').readlines()
     verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() for l in fh if l[0] != "#"}
     
     if verse in verses:
-        return render_template("verse.html",translation=translation,
+        return render_template("verse.html", full=full, translation=translation,
             book=verse[:2],chapter=verse[2:5],verse=verse[5:],
             versetext=verses[verse])
     else:
-        return render_template("error.html",error="No verses available")
+        return render_template("error.html", full=full, error="No verses available"), 404
 
 # /full/eng-x-bible-engkj-v0.txt/
 @app.route('/full/<translation>-v<regex("\d+"):translationversion>.txt')
@@ -416,10 +389,7 @@ def textfilefull(translation,translationversion):
     URL: /translationversion.txt
     Redirects to the text file of the given translationversion
     """
-    g.full = full
-    g.baseurl = BASE_URL
-
-    return redirect('/' + g.baseurl + 'static/files/bible_corpus/corpus/'
+    return redirect('/' + app.config['BASE_URL'] + 'static/files/bible_corpus/corpus/'
         + translation + "-v" + translationversion + '.txt')
 
 # /compare/eng-x-bible-engkj-v1/deu-x-bible-luther-v1/
@@ -433,31 +403,12 @@ def compare(full,translation1,translation2,verse):
     Compares two parallel verses from different translations and computes
     the association measure (Poisson) of each word pair
     """
-    g.full = full
-    g.baseurl = BASE_URL
-
-    """
-    # version with SimpleCache (not fast enough as it is)
-    assoc = cache.get(translation1 + "_" + translation2)
-    if assoc is None:
-
-        text1 = reader.ParText(app.config['TEXTFILES_FOLDER'] + translation1 + '.txt')
-        text2 = reader.ParText(app.config['TEXTFILES_FOLDER'] + translation2 + '.txt')
-        poisson = cooccurrence.Cooccurrence(text1,text2,method="poisson")
-
-        pack = poisson
-
-        assoc = cache.set(translation1 + "_" + translation2, pack, timeout= 5 * 60)
-
-    else:
-        poisson = assoc
-    """
     path1 = app.config['TEXTFILES_FOLDER'] + translation1 + '.txt'
     path2 = app.config['TEXTFILES_FOLDER'] + translation2 + '.txt'
     
     if not (os.path.isfile(path1) and os.access(path1, os.R_OK) and \
             os.path.isfile(path2) and os.access(path2, os.R_OK)):
-        return render_template('error.html',error="One of the bibles is not available"), 404
+        return render_template('error.html', full=full, error="One of the bibles is not available"), 404
 
     # read texts in ParText objects
     text1 = reader.ParText(path1)
@@ -472,7 +423,7 @@ def compare(full,translation1,translation2,verse):
         raw_words1 = poisson.text1.get_raw_verses()[verse]
         raw_words2 = poisson.text2.get_raw_verses()[verse]
     except (KeyError, ValueError):
-        return render_template('error.html',error="The verse is not available"), 404
+        return render_template('error.html', full=full, error="The verse is not available"), 404
         
 
     words12 = [[poisson.get_assoc(w1.lower(),w2.lower()) 
@@ -489,16 +440,13 @@ def compare(full,translation1,translation2,verse):
     # add additional global associated words
     additional = [poisson.nbest2(w.lower(),c) for c,w in enumerate(raw_words2)]
 
-    return render_template('compareverse.html',words1=words1,words2=words2,
+    return render_template('compareverse.html', full=full, words1=words1,words2=words2,
         words12=str(words12),words21=str(words21),alignment=str(alignment),
         verse=verse,translation1=translation1,translation2=translation2,
         additional = str(additional))
 
 @app.route("/full/zipall/", defaults={'full':full})
 def zipall(full):
-    g.full = full
-    g.baseurl = BASE_URL
-
     reltranslations = list()
 
     translations = ['-'.join(f.split("-")[:-1]) for f in
@@ -517,14 +465,14 @@ def zipall(full):
 
         reltranslations.append(translation + '-v' + str(versionnumbers[0]) + '.txt')
 
-    zip = ZipFile(STATIC_FOLDER + '/files/bible_corpus.zip','w',ZIP_DEFLATED)
+    zip = ZipFile(app.config['STATIC_FOLDER'] + '/files/bible_corpus.zip','w',ZIP_DEFLATED)
 
     for f in reltranslations[:100]:
         zip.write(app.config['TEXTFILES_FOLDER'] + f,f)
 
     zip.close()
 
-    return redirect('/' + g.baseurl + 'static/files/bible_corpus.zip')
+    return redirect('/' + app.config['BASE_URL'] + 'static/files/bible_corpus.zip')
 
 if __name__ == "__main__":
     app.run(debug=True)

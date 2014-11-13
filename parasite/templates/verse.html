@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {% block body %}
 <h1 id="page_title">
-	<a href="{{ url_for('.listtranslation', full=g.full, translation=translation) }}">{{ translation }}</a>
-	<a href="{{ url_for('.listbook', full=g.full, translation=translation, book=book) }}">{{ book }}</a>
-	<a href="{{ url_for('.listchapter', full=g.full, translation=translation, book=book, chapter=chapter) }}">{{ chapter }}</a>:{{ verse }}
+	<a href="{{ url_for('.listtranslation', full=full, translation=translation) }}">{{ translation }}</a>
+	<a href="{{ url_for('.listbook', full=full, translation=translation, book=book) }}">{{ book }}</a>
+	<a href="{{ url_for('.listchapter', full=full, translation=translation, book=book, chapter=chapter) }}">{{ chapter }}</a>:{{ verse }}
 </h1>
 
 <table>

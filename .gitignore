@@ -2,6 +2,8 @@
 *~
 *.bak
 *.swp
+parasite/config.py
+parasite/static/data/languages.json
 parasite/static/files/
 .DS_Store
 flask/

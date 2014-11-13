@@ -1,0 +1,16 @@
+import os
+
+#neccessary settings
+BASE_URL = ""
+BASE_PATH = os.path.dirname(os.path.realpath(__file__))
+TEXTFILES_FOLDER = BASE_PATH + '/static/files/bible_corpus/corpus/'
+DATA_FOLDER = BASE_PATH + '/static/data/'
+STATIC_FOLDER = BASE_PATH + '/static/'
+ZIPFILES_FOLDER = BASE_PATH + '/static/files/zipfiles/'
+TEXTFILES_RELPATH = 'static/files/bible_corpus/corpus/'
+
+#for testing
+SERVER_NAME = 'localhost:5000'
+
+#should be set to false in production mode
+DEBUG=True

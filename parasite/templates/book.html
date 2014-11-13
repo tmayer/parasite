@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
 {% block body %}
 <h1 id="page_title">Available chapters for 
-<a href="{{ url_for('.listtranslation', full=g.full, translation=translation) }}">{{ translation }}</a> 
+<a href="{{ url_for('.listtranslation', full=full, translation=translation) }}">{{ translation }}</a> 
 {{ book }}</h1>
 
 {% for chapter in chapters %}
 	{% if loop.index % 10 == 0 %}
 		<br>
 	{% endif %}
-	<a href='{{ url_for('.listchapter', full=g.full, translation=translation, book=book, chapter=chapter) }}'> {{ chapter }} </a> |
+	<a href='{{ url_for('.listchapter', full=full, translation=translation, book=book, chapter=chapter) }}'> {{ chapter }} </a> |
 {% endfor %}
 
 {% endblock %}

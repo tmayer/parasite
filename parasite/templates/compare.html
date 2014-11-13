@@ -25,17 +25,17 @@
 {% for verse in verses %}
 	<tr class="selection page-{{ (loop.index // 10) + 1}}"><td style="border-bottom: 2px solid black;" valign="top" align="right" rowspan="2">{{ loop.index }})</td>
     <td valign="top">{{ verse[0][0] }} <br>
-    <a href="{{ url_for('.listtranslation',full=g.full,translation=text1) }}"><span class="label label-default" title="{{ text1 }}">{{ text1 }}</span></a>
+    <a href="{{ url_for('.listtranslation',full=full,translation=text1) }}"><span class="label label-default" title="{{ text1 }}">{{ text1 }}</span></a>
     </td>
     <td valign="top">
 	{{ verse[0][1] }} </td>
 	
 
-    <td valign="middle" style="border-bottom: 2px solid black;" rowspan="2"><a class="btn btn-primary btn-xs" href="{{ url_for('.compare', full=g.full, translation1=text1, translation2=text2, verse=verse[0][0]) }}" title="Comparison may take a few seconds..." role="button">Compare</a></td>
+    <td valign="middle" style="border-bottom: 2px solid black;" rowspan="2"><a class="btn btn-primary btn-xs" href="{{ url_for('.compare', full=full, translation1=text1, translation2=text2, verse=verse[0][0]) }}" title="Comparison may take a few seconds..." role="button">Compare</a></td>
 	</tr>
 	<tr class="translation selection page-{{ (loop.index // 10) + 1 }}">
 	<td valign="top">{{ verse[1][0] }} <br>
-	<a href="{{ url_for('.listtranslation',full=g.full,translation=text2) }}">
+	<a href="{{ url_for('.listtranslation',full=full,translation=text2) }}">
         <span class="label label-default" title="{{ text2 }}">{{ text2 }}</span>
     </a>
 	</td>

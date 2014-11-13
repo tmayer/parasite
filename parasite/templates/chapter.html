@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block body %}
 <h1 id="page_title">
-	<a href="{{ url_for('.listtranslation', full=g.full,translation=translation) }}">{{ translation }}</a>
-	<a href="{{ url_for('.listbook', full=g.full,translation=translation,book=book) }}">{{ book }}</a> {{ chapter }}
+	<a href="{{ url_for('.listtranslation', full=full,translation=translation) }}">{{ translation }}</a>
+	<a href="{{ url_for('.listbook', full=full,translation=translation,book=book) }}">{{ book }}</a> {{ chapter }}
 </h1>
 <table border='0' class="tablecomparison table-striped">
 {% for verse in verses %}
 	<tr><td valign="top">
-	<a href='{{ url_for('.listverse', full=g.full,translation=translation,book=book,
+	<a href='{{ url_for('.listverse', full=full,translation=translation,book=book,
 	chapter=chapter,verse=verse[0][-3:]) }}'>{{ verse[0] }}</a></td>
 	<td> {{ verse[1] }}</td></tr>
 {% endfor %}

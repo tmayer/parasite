@@ -52,13 +52,13 @@
 {% endblock %}
 {% block body %}
 <h1 id="page_title">Comparison of {{ verse }} for <br>
-<a href="{{ url_for('.listtranslation',full=g.full,translation=translation2) }}">
+<a href="{{ url_for('.listtranslation',full=full,translation=translation2) }}">
     {{ translation2 }}</a> and <br>
-<a href="{{ url_for('.listtranslation',full=g.full,translation=translation1) }}">
+<a href="{{ url_for('.listtranslation',full=full,translation=translation1) }}">
 {{ translation1 }}</a></h1>
 
 <div>
-<a href="{{ url_for('.compare',full=g.full,translation1=translation2,
+<a href="{{ url_for('.compare',full=full,translation1=translation2,
 translation2=translation1,verse=verse) }}">Reverse order of languages</a>
 </div>
 
@@ -66,12 +66,12 @@ translation2=translation1,verse=verse) }}">Reverse order of languages</a>
 
 <div class="bs-callout bs-callout-info">
 <div id='sent1'>
-<a href="{{ url_for('.listtranslation',full=g.full,translation=translation1) }}">
+<a href="{{ url_for('.listtranslation',full=full,translation=translation1) }}">
     <span class="label label-default">{{ translation2 }}</span>
 </a></div>
 
 <div id='sent2'>
-<a href="{{ url_for('.listtranslation',full=g.full,translation=translation2) }}">
+<a href="{{ url_for('.listtranslation',full=full,translation=translation2) }}">
     <span class="label label-default">{{ translation1 }}</span>
 </a></div>
 </div>

@@ -20,8 +20,8 @@
 {% for verse in verses %}
     <tr class="selection page-{{ (loop.index // 10) + 1}}">
         <td valign="top" align="right" rowspan="1">{{ loop.index }})</td>
-    <td valign="top"><a href="{{ url_for('.listverseflat',full=g.full,translation=translation,verse=verse[0]) }}">{{ verse[0] }} </a><br>
-    <a href="{{ url_for('.listtranslation',full=g.full,translation=translation) }}"><span class="label label-default" title="{{ translation }}">{{ translation }}</span></a>
+    <td valign="top"><a href="{{ url_for('.listverseflat',full=full,translation=translation,verse=verse[0]) }}">{{ verse[0] }} </a><br>
+    <a href="{{ url_for('.listtranslation',full=full,translation=translation) }}"><span class="label label-default" title="{{ translation }}">{{ translation }}</span></a>
     </td>
     <td valign="top">
     {{ verse[1] }} </td>

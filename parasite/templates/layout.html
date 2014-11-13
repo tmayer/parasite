@@ -10,7 +10,7 @@
     <title>Parallel Bible Corpus</title>
     
     {% block robots %}
-    {% if g.full != '' %}
+    {% if full != '' %}
     	<meta name="robots" content="noindex,nofollow" />
     {% endif %}
     {% endblock %}
@@ -51,17 +51,17 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="{{ url_for('.index', full=g.full) }}">Parallel Bible Corpus</a>
+          <a class="navbar-brand" href="{{ url_for('.index', full=full) }}">Parallel Bible Corpus</a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li><a href="{{ url_for('.index', full=g.full) }}" title="Parallel Bible Corpus">
+            <li><a href="{{ url_for('.index', full=full) }}" title="Parallel Bible Corpus">
 						Map</a></li>
-            <li><a href="{{ url_for('.listtranslations', full=g.full) }}" 
+            <li><a href="{{ url_for('.listtranslations', full=full) }}" 
 						title="Parallel Bible Corpus">
 						List of all translations
 						</a></li>
-            <li><a href="{{ url_for('.search', full=g.full) }}" 
+            <li><a href="{{ url_for('.search', full=full) }}" 
 						title="Parallel Bible Corpus">
 						Search
 						</a></li>
