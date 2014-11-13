@@ -4,6 +4,7 @@ import os
 BASE_URL = ""
 BASE_PATH = os.path.dirname(os.path.realpath(__file__))
 TEXTFILES_FOLDER = BASE_PATH + '/static/files/bible_corpus/corpus/'
+FILE_FOLDER = BASE_PATH + '/static/files'
 DATA_FOLDER = BASE_PATH + '/static/data/'
 STATIC_FOLDER = BASE_PATH + '/static/'
 ZIPFILES_FOLDER = BASE_PATH + '/static/files/zipfiles/'

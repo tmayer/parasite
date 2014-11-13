@@ -471,7 +471,7 @@ def zipall(full):
 
         reltranslations.append(translation + '-v' + str(versionnumbers[0]) + '.txt')
 
-    zip = ZipFile(app.config['STATIC_FOLDER'] + '/files/bible_corpus.zip','w',ZIP_DEFLATED)
+    zip = ZipFile(app.config['FILE_FOLDER'] + '/bible_corpus.zip','w',ZIP_DEFLATED)
 
     for f in reltranslations[:100]:
         zip.write(app.config['TEXTFILES_FOLDER'] + f,f)

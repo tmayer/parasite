@@ -5,7 +5,9 @@ import parasite.views as views
 class ViewTestsContainer(unittest.TestCase):
     def setUp(self):
         app = views.app
-        app.config['TEXTFILES_FOLDER'] = app.config['BASE_PATH'] + '/static/files/textfiles/'
+        app.config['TEXTFILES_FOLDER'] = app.config['BASE_PATH'] + '/static/testfiles/textfiles/'
+        app.config['ZIPFILES_FOLDER']  = app.config['BASE_PATH'] + '/static/testfiles/zipfiles/'
+        app.config['FILE_FOLDER']  = app.config['BASE_PATH'] + '/static/testfiles/'
         self.client = views.app.test_client()
 
 
