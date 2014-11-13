@@ -47,7 +47,7 @@ class ParText():
             if portions == None or int(line.lstrip()[:2]) in portions]
         
         # clean up all punctuation marks TODO: find a better method to remove all non-letters!
-        pat = re.compile("[“”‘’`´“”‘’`´‚<>.;,:?¿‹›!()\[\]\*—\"„§$%&\/\=_{}]")
+        pat = re.compile("[“”‘’`´“”‘’`´‚<>.;,:?¿‹›!()\[\]—\"„§$%&\/\=_{}]")
         fh = "\t\t".join(fh)
         fh = re.sub(pat,'',fh).lower()
         fh = fh.split("\t\t")
@@ -205,11 +205,3 @@ class ParText():
             
 if __name__ == "__main__":
     pass
-    
-    
-    
-   
-    
-
-    
-    

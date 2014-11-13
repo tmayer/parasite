@@ -102,8 +102,14 @@ def listtranslations(full):
     codebygeo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh2[1:]}
 
     # combine everything for the tabular representation
-    translations2 = [(t,codebygeo[t[:3]][0],
-        codebyinfo[t[:3]][1]) if t[:3] in codebygeo else (t,"","") for t in translations]
+    #translations2 = [(t,codebygeo[t[:3]][0],
+    #    codebyinfo[t[:3]][1]) if t[:3] in codebygeo else (t,"","") for t in translations]
+    translations2 = list()
+    for t in translations:
+        if t[:3] in codebygeo and t[:3] in codebyinfo and len(codebyinfo[t[:3]]) > 1:
+            translations2.append((t,codebygeo[t[:3]][0],codebyinfo[t[:3]][1]))
+        else:
+            translations2.append((t,"",""))
 
     return render_template('list.html', full=full, translations=translations2)
     
@@ -355,7 +361,7 @@ def listverse(full,translation,book,chapter,verse):
     
     if book+chapter+verse in verses:
         return render_template("verse.html", full=full, translation=translation,book=book,
-        chapter=chapter,verse=verse,versetext=verses[book+chapter+verse])
+                               chapter=chapter,verse=verse,versetext=verses[book+chapter+verse])
     else:
         return render_template("error.html", full=full, error="No verses available"), 404
             
