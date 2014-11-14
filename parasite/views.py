@@ -295,9 +295,11 @@ def listbook(full,translation,book):
     Lists all chapters of the translation's book
     """
 
-    # only show books's chapters when full access (except Mark)
     path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
-    if full == '' and book != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
+    if not (os.path.isfile(path) and os.access(path, os.R_OK)):
+        return render_template("error.html", full=full, error="Bible not available"), 404
+    # only show books's chapters when full access (except Mark)
+    if full == '' and book != '41':
         return render_template("error.html", full=full, error="Book not available"), 404
 
     # get all chapters for the respective book
@@ -352,9 +354,11 @@ def listverse(full,translation,book,chapter,verse):
     Shows the given verse
     """
     path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
+    if not (os.path.isfile(path) and os.access(path, os.R_OK)):
+        return render_template("error.html", full=full, error="Bible not available"), 404
     # only show the verse when full access (except Mark)
-    if full == '' and book != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
-        return render_template("error.html",error="Verse not available"), 404
+    if full == '' and book != '41':
+        return render_template("error.html", full=full, error="Verse not available"), 404
 
     fh = codecs.open(path,'r','utf-8').readlines()
     verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() for l in fh if l[0] != "#"}
@@ -375,8 +379,10 @@ def listverseflat(full,translation,verse):
     Shows the given verse with flat ID
     """
     path = app.config['TEXTFILES_FOLDER'] + translation + '.txt'
+    if not (os.path.isfile(path) and os.access(path, os.R_OK)):
+        return render_template("error.html", full=full, error="Bible not available"), 404
     # only show the verse when full access (except Mark)
-    if full == '' and verse[:2] != '41' or not (os.path.isfile(path) and os.access(path, os.R_OK)):
+    if full == '' and verse[:2] != '41':
         return render_template("error.html", full=full, error="Verse not available"), 404
     fh = codecs.open(path, 'r','utf-8').readlines()
     verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() for l in fh if l[0] != "#"}
