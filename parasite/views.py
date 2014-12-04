@@ -360,14 +360,14 @@ def listverse(full,translation,book,chapter,verse):
     if full == '' and book != '41':
         return render_template("error.html", full=full, error="Verse not available"), 404
 
-    fh = codecs.open(path,'r','utf-8').readlines()
-    verses = {l.split('\t',1)[0]:l.split('\t',1)[1].strip() for l in fh if l[0] != "#"}
-    
-    if book+chapter+verse in verses:
-        return render_template("verse.html", full=full, translation=translation,book=book,
-                               chapter=chapter,verse=verse,versetext=verses[book+chapter+verse])
+    verse_number = book + chapter + verse
+    verses = [line.split('\t', 1) for line in codecs.open(path,'r','utf-8').readlines()
+             if line.startswith(verse_number)]
+    if len(verses) == 1 and len(verses[0]) == 2:
+        return render_template("verse.html", full=full, translation=translation, book=book,
+                               chapter=chapter, verse=verse, versetext=verses[0][1].strip())
     else:
-        return render_template("error.html", full=full, error="No verses available"), 404
+        return render_template("error.html", full=full, error="Verse not available"), 404
             
 # /eng-x-bible-engkj-v0/41001001/ 
 @app.route('/<translation>/<regex("\d{8}"):verse>/',defaults={'full': ''})
