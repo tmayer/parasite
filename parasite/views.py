@@ -243,12 +243,14 @@ def listtranslation(full,translation):
         versionnumbers = sorted([int(v[:-4].split('-')[-1][1:]) 
             for v in versions],reverse=True)
 
-        return redirect(url_for('.listtranslationversion',full=full,
-            translation=translation,
-            translationversion=str(versionnumbers[0])))
+        if versionnumbers:
+            return redirect(url_for('.listtranslationversion', full=full,
+                                    translation=translation,
+                                    translationversion=str(versionnumbers[0])))
     except Exception, e:
         app.logger.warn(traceback.format_exc())
-        return render_template('error.html', full=full, error="Bible text not available"), 404
+
+    return render_template('error.html', full=full, error="Bible text not available"), 404
 
 # /eng-x-bible-engkj-v0/    
 @app.route('/<translation>-v<regex("\d+"):translationversion>/',defaults={'full': ''})
