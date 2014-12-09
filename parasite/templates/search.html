@@ -12,13 +12,13 @@
     <div class="col-sm-10">
       
     <select name="source" size="1"  class="form-control" id="text1">
-    {% for translation in translations %}
-        {% if translation == "eng-x-bible-darby-v1" %}
+    {% for translation in translations -%}
+        {% if translation == "eng-x-bible-darby-v1" -%}
             <option selected="selected">{{ translation }}</option>
-        {% else %}
+        {% else -%}
             <option>{{ translation }}</option>
-        {% endif %}
-    {% endfor %}
+        {% endif -%}
+    {% endfor -%}
     </select>
     </div>
   </div>
@@ -27,13 +27,13 @@
     <div class="col-sm-10">    
     <select name="target" size="1"  class="form-control" id="text2">
         <option>None</option>
-    {% for translation in translations %}
-        {% if loop.index == 1 %}
-        <option selected="selected">{{ translation }}</option>
-        {% else %}
-        <option>{{ translation }}</option>
-        {% endif %}
-    {% endfor %}
+    {% for translation in translations -%}
+        {% if loop.index == 1 -%}
+            <option selected="selected">{{ translation }}</option>
+        {% else -%}
+            <option>{{ translation }}</option>
+        {% endif -%}
+    {% endfor -%}
     </select>
     </div>
   </div>
@@ -43,46 +43,5 @@
     </div>
   </div>
 </form>
-
-
-<!--
-<form method="post" action="{{ url_for('.search',full=full) }}">
-        <table border="0">
-        <tr><td>
-        <label>Search for</label></td>
-        <td>
-        <input type="text" name="query" size="50" class="form-control">
-        </td></tr>
-        <tr><td>
-        <label>in</label>
-        </td><td>
-    <select name="source" size="1"  class="form-control">
-    {% for translation in translations %}
-        {% if translation == "eng-x-bible-darby-v1" %}
-            <option selected="selected">{{ translation }}</option>
-        {% else %}
-            <option>{{ translation }}</option>
-        {% endif %}
-    {% endfor %}
-    </select>
-    </td></tr>
-    <tr><td>
-    <label>compare with</label>
-    </td><td>
-    <select name="target" size="1"  class="form-control">
-        <option>None</option>
-    {% for translation in translations %}
-        {% if loop.index == 1 %}
-        <option selected="selected">{{ translation }}</option>
-        {% else %}
-        <option>{{ translation }}</option>
-        {% endif %}
-    {% endfor %}
-    </select>
-        </td></tr>
-        <tr><td></td><td><button type="submit" value="Show results" class="btn btn-primary btn-sm">Submit</button></td></tr>
-        </table>
-</form>
--->
 {% endblock %}
 
