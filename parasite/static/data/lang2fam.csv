@@ -68,7 +68,6 @@ acr	Rabinal Achí	Mayan	Yucatecan-Core Mayan	K’ichean-Mamean	K’ichean	Poqom-
 acs	Macro-Ge	Ge-Kaingang	Ge	Central
 act	Indo-European	Germanic	West	Low Saxon-Low Franconian	Low Saxon
 acu	Achuar-Shiwiar	Jivaroan	Jívaro
-acu	Jivaroan
 acv	Hokan	Northern	Karok-Shasta	Shasta-Palaihnihan	Palaihnihan
 acz	Niger-Congo	Kordofanian	Talodi	Talodi Proper	Tocho
 ada	Niger-Congo	Atlantic-Congo	Volta-Congo	Kwa	Nyo	Ga-Dangme
@@ -131,7 +130,6 @@ agd	Trans-New Guinea	Kainantu-Goroka	Kainantu	Gadsup-Auyana-Awa
 age	Trans-New Guinea	Engan	Angal-Kewa
 agf	Austronesian	Malayo-Polynesian	Central-Eastern	Central Malayo-Polynesian	North Bomberai
 agg	Angor	Senagi
-agg	Senagi
 agh	Niger-Congo	Atlantic-Congo	Volta-Congo	Benue-Congo	Bantoid	Southern	Narrow Bantu	Northwest	C	Ngombe (C.50)
 agi	Austro-Asiatic	Munda	North Munda	Kherwari
 agj	Afro-Asiatic	Semitic	South	Ethiopian	South	Transversal	Amharic-Argobba
@@ -145,7 +143,6 @@ ago	Trans-New Guinea	Angan	Nuclear Angan
 agp	Austronesian	Malayo-Polynesian	Philippine	Northern Luzon	Northern Cordilleran	Northeastern Luzon	Northern
 agq	Niger-Congo	Atlantic-Congo	Volta-Congo	Benue-Congo	Bantoid	Southern	Wide Grassfields	Narrow Grassfields	Ring	West
 agr	Aguaruna	Jivaroan
-agr	Jivaroan
 ags	Niger-Congo	Atlantic-Congo	Volta-Congo	Benue-Congo	Bantoid	Southern	Tivoid
 agt	Austronesian	Malayo-Polynesian	Philippine	Northern Luzon	Northern Cordilleran	Cagayan Valley	Ibanagic	Gaddangic
 agu	Aguacateco	Mayan	Yucatecan-Core Mayan	K’ichean-Mamean	Mamean	Awakateko-Ixil
@@ -271,7 +268,6 @@ amp	Alamblak	Sepik	Sepik Hill	Alamblak
 amp	Sepik	Sepik Hill	Alamblak
 amq	Austronesian	Malayo-Polynesian	Central-Eastern	Central Malayo-Polynesian	Central Maluku	East	Seram	Nunusaku	Piru Bay	East	Seram Straits	Uliase	Hatuhaha	Elpaputi
 amr	Amarakaeri	Harákmbut
-amr	Harakmbet
 ams	Japonic	Ryukyuan	Amami-Okinawan	Northern Amami-Okinawan
 amt	Amto-Musan
 amu	Guerrero Amuzgo	Otomanguean	Eastern Otomanguean	Amuzgo-Mixtecan	Amuzgo
@@ -373,7 +369,6 @@ ari	Caddoan	Northern	Pawnee-Kitsai	Pawnee
 arj	Tucanoan	Eastern Tucanoan	Northern
 ark	Macro-Ge	Yabuti
 arl	Arabela	Zaparoan	Záparo	Arabela-Andoa
-arl	Zaparoan
 arn	Araucanian
 arn	Mapudungun	Mapudungu
 aro	Tacanan	Araona-Tacana	Araona
@@ -908,7 +903,6 @@ bok	Niger-Congo	Atlantic-Congo	Volta-Congo	North	Adamawa-Ubangi	Ubangi	Gbaya-Man
 bol	Afro-Asiatic	Chadic	West	A	A.2	Bole	Bole Proper
 bom	Niger-Congo	Atlantic-Congo	Volta-Congo	Benue-Congo	Plateau	Beromic
 bon	Bine	Eastern Trans-Fly
-bon	Eastern Trans-Fly
 boo	Niger-Congo	Mande	Western	Northwestern	Soninke-Bobo	Soninke-Boso	Boso	Eastern
 bop	Trans-New Guinea	Finisterre-Huon	Finisterre	Yupna
 boq	Trans-New Guinea	Duna-Bogaya
@@ -1221,7 +1215,6 @@ can	Ramu-Lower Sepik	Lower Sepik	Chambri
 cao	Chácobo	Panoan	Bolivian Panoan	Chákobo
 cao	Panoan	Southern
 cap	Chipaya	Chipaya-Uru
-cap	Uru-Chipaya
 caq	Austro-Asiatic	Mon-Khmer	Nicobar	Car
 car	Carib	Cariban
 car	Carib	Northern	Galibi
@@ -1257,10 +1250,8 @@ cbs	Panoan	Southeastern
 cbt	Cahuapanan
 cbt	Chayahuita	Cahuapanan
 cbu	Candoshi-Shapra	Language isolate
-cbu	Language isolate
 cbv	Cacua	Puinavean	Cacua
 cbv	Maku
-cby	Unclassified
 cca	Choco
 ccc	Arawakan	Maipuran	Western Maipuran
 ccd	Creole	Portuguese based
@@ -1310,7 +1301,6 @@ cha	Austronesian	Malayo-Polynesian	Chamorro
 cha	Chamorro	Austronesian	Malayo-Polynesian	Chamorro
 chc	Siouan	Catawba
 chd	Highland Oaxaca Chontal	Tequistlatecan
-chd	Tequistlatecan
 che	Chechen	North Caucasian	East Caucasian	Nakh	Chechen-Ingush
 che	North Caucasian	East Caucasian	Nakh	Chechen-Ingush
 chf	Mayan	Cholan-Tzeltalan	Cholan	Chol-Chontal
@@ -1536,7 +1526,6 @@ cuc	Usila Chinantec	Otomanguean	Western Otomanguean	Oto-Pame-Chinantecan	Chinant
 cug	Niger-Congo	Atlantic-Congo	Volta-Congo	Benue-Congo	Bantoid	Southern	Beboid	Eastern
 cuh	Niger-Congo	Atlantic-Congo	Volta-Congo	Benue-Congo	Bantoid	Southern	Narrow Bantu	Central	E	Kikuyu-Kamba (E.20)	Meru
 cui	Cuiba	Guajiboan
-cui	Guahiban
 cuj	Arawakan	Maipuran	Southern Maipuran	Purus
 cuk	Chibchan	Kuna
 cuk	San Blas Kuna	Chibchan	Chibchan B	Eastern Chibchan	Cuna
@@ -2521,7 +2510,6 @@ hto	Witotoan	Witoto	Witoto Proper	Minica-Murui
 hts	Khoisan	Hatsa
 htu	Austronesian	Malayo-Polynesian	Central-Eastern	Central Malayo-Polynesian	Central Maluku	East	Seram	Nunusaku	Piru Bay	East	Seram Straits	Ambon
 hub	Huambisa	Jivaroan	Jívaro
-hub	Jivaroan
 huc	Khoisan	Southern Africa	Southern	Hua
 hud	Austronesian	Malayo-Polynesian	Central-Eastern	Central Malayo-Polynesian	Central Maluku	East	Seram	Manusela-Seti
 hue	Huavean
@@ -2534,7 +2522,6 @@ huk	Austronesian	Malayo-Polynesian	Central-Eastern	Central Malayo-Polynesian	Cen
 hul	Austronesian	Malayo-Polynesian	Central-Eastern	Eastern Malayo-Polynesian	Oceanic	Western Oceanic	Papuan Tip	Peripheral	Central Papuan	Sinagoro-Keapara
 hum	Niger-Congo	Atlantic-Congo	Volta-Congo	Benue-Congo	Bantoid	Southern	Narrow Bantu	Central	H	Hungana (H.40)
 hun	Hungarian	Uralic
-hun	Uralic
 huo	Austro-Asiatic	Mon-Khmer	Northern Mon-Khmer	Palaungic	Eastern Palaungic	Angkuic
 hup	Na-Dene	Nuclear Na-Dene	Athapaskan-Eyak	Athapaskan	Pacific Coast	California	Hupa
 huq	Austronesian	Malayo-Polynesian	Malayo-Sumbawan	North and East	Chamic	Highlands	Chru-Northern	Northern Cham
@@ -2907,7 +2894,6 @@ kbe	Australian	Pama-Nyungan	Paman	Northeastern Pama
 kbf	Alacalufan
 kbg	Sino-Tibetan	Tibeto-Burman	Unclassified
 kbh	Camsá	Language isolate
-kbh	Language isolate
 kbi	Austronesian	Malayo-Polynesian	Central-Eastern	Eastern Malayo-Polynesian	Oceanic	Western Oceanic	North New Guinea	Sarmi-Jayapura Bay	Sarmi
 kbj	Niger-Congo	Atlantic-Congo	Volta-Congo	Benue-Congo	Bantoid	Southern	Narrow Bantu	Central	Unclassified
 kbk	Trans-New Guinea	Southeast Papuan	Koiarian	Koiaric
@@ -3260,7 +3246,6 @@ koo	Niger-Congo	Atlantic-Congo	Volta-Congo	Benue-Congo	Bantoid	Southern	Narrow B
 kop	Trans-New Guinea	Madang	Rai Coast	Nuru
 koq	Niger-Congo	Atlantic-Congo	Volta-Congo	Benue-Congo	Bantoid	Southern	Narrow Bantu	Northwest	B	Kele (B.20)
 kor	Korean	Language isolate
-kor	Language isolate
 kos	Austronesian	Malayo-Polynesian	Central-Eastern	Eastern Malayo-Polynesian	Oceanic	Central-Eastern Oceanic	Remote Oceanic	Micronesian	Micronesian Proper	Kusaiean
 kot	Afro-Asiatic	Chadic	Biu-Mandara	B	B.1	Kotoko Proper	South
 kou	Niger-Congo	Atlantic-Congo	Volta-Congo	North	Adamawa-Ubangi	Adamawa	Mbum-Day	Bua
@@ -3397,7 +3382,6 @@ ktl	Indo-European	Indo-Iranian	Iranian	Western	Northwestern	Balochi
 ktm	Austronesian	Malayo-Polynesian	Central-Eastern	Eastern Malayo-Polynesian	Oceanic	Admiralty Islands	Eastern	Manus	East
 ktn	Tupi	Arikem
 kto	Kuot	Language isolate
-kto	Language isolate
 ktp	Sino-Tibetan	Tibeto-Burman	Burmic	Ngwi	Southern
 ktq	Austronesian	Malayo-Polynesian	Unclassified
 ktr	Austronesian	Malayo-Polynesian	North Borneo	Sabahan	Dusunic	Dusun	Central
