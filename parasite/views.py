@@ -44,7 +44,7 @@ def index(full):
     # for all languages
     translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
         os.listdir(app.config['TEXTFILES_FOLDER']) 
-        if f[-4:] == ".txt"}))
+        if f[-4:] == ".txt" and "deprecated" not in f}))
     translationtexts = list({"-".join(t) for t in translations})
     codesbytranslations = collections.defaultdict(list)
     for t in translations:
@@ -91,7 +91,7 @@ def listtranslations(full):
     """
     translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
             os.listdir(app.config['TEXTFILES_FOLDER']) 
-            if f[-4:] == ".txt"}))
+            if f[-4:] == ".txt" and "deprecated" not in f}))
 
     # get genealogy
     fh = codecs.open(app.config['DATA_FOLDER'] 
@@ -141,7 +141,7 @@ def search(full):
     else:
         translations = sorted([f[:-4] for f in 
         os.listdir(app.config['TEXTFILES_FOLDER']) 
-        if f[-4:] == ".txt"])
+        if f[-4:] == ".txt" and "deprecated" not in f])
         
         return render_template('search.html', full=full, translations=translations)
             
@@ -470,7 +470,7 @@ def zipall(full):
 
     translations = ['-'.join(f.split("-")[:-1]) for f in
         os.listdir(app.config['TEXTFILES_FOLDER'])
-        if f[-4:] == ".txt"]
+        if f[-4:] == ".txt" and "deprecated" not in f]
 
     for translation in translations:
 
