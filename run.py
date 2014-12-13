@@ -1,5 +1,5 @@
 #!flask/bin/python
-from parasite import app
+from parasite.views import app
 
 
 

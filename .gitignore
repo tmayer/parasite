@@ -1,4 +1,11 @@
+*.py[cod]
+*~
+*.bak
+*.swp
+parasite/config.py
+parasite/static/data/languages.json
 parasite/static/files/
+parasite/static/testfiles/bible_corpus.zip
 .DS_Store
 flask/
 .idea/

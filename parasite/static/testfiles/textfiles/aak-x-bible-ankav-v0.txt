@@ -1,11 +1,11 @@
-#language_name:      Ankave
-#ISO 639-3:          aak
-#year_short:         1990
-#year_long:          
-#title:              The New Testament in Ankave
-#URL:                http://pngscriptures.org/aak/
-#copyright_short:    © Wycliffe Bible Translators, Inc. 1990
-#copyright_long:     copyright © 1990 Wycliffe Bible Translators, Inc. Print publisher: World Home Bible League Electronic publisher: PNG Bible Translation Association Translation: Wycliffe Bible Translators  This translation is made available to you under the terms of the Creative Commons Attribution-Noncommercial-No Derivative Works license. In addition, you have permission to port the text to different file formats, as long as you don't change any of the text or punctuation of the Bible.  Pictures included with Scriptures and other documents on this site are licensed just for use with those Scriptures and documents. For other uses, please contact the respective copyright owners.  You may share, copy, distribute, transmit, and extract portions or quotations from this work, provided that: You include the above copyright information and that you make it clear that the work came from http://pngscriptures.org/. You do not sell this work for a profit. You do not make any derivative works that change any of the actual words or punctuation of the Scriptures. Permissions beyond the scope of this license may be available if you contact us with your request. If you want to revise a translation, use a translation in an adaptation, or use a translation commercially, we will relay your request to the appropriate copyright owner.
+# language_name:      Ankave
+# ISO 639-3:          aak
+# year_short:         1990
+# year_long:          
+# title:              The New Testament in Ankave
+# URL:                http://pngscriptures.org/aak/
+# copyright_short:    © Wycliffe Bible Translators, Inc. 1990
+# copyright_long:     copyright © 1990 Wycliffe Bible Translators, Inc. Print publisher: World Home Bible League Electronic publisher: PNG Bible Translation Association Translation: Wycliffe Bible Translators  This translation is made available to you under the terms of the Creative Commons Attribution-Noncommercial-No Derivative Works license. In addition, you have permission to port the text to different file formats, as long as you don't change any of the text or punctuation of the Bible.  Pictures included with Scriptures and other documents on this site are licensed just for use with those Scriptures and documents. For other uses, please contact the respective copyright owners.  You may share, copy, distribute, transmit, and extract portions or quotations from this work, provided that: You include the above copyright information and that you make it clear that the work came from http://pngscriptures.org/. You do not sell this work for a profit. You do not make any derivative works that change any of the actual words or punctuation of the Scriptures. Permissions beyond the scope of this license may be available if you contact us with your request. If you want to revise a translation, use a translation in an adaptation, or use a translation commercially, we will relay your request to the appropriate copyright owner.
 40001001	Xwɨyɨ'a' rɨpɨ ɨ'wia'rɨ'awe' Jisasɨ Kiraisoya' na'nɨrɨnɨ. Oya' ɨ'wia'rɨ'awe' nimo'ga nurɨ a'wɨnɨ e mɨxɨ' ina'yɨ' Depitorɨnɨ. Depitoya' ɨ'wia'rɨ'awe' nimo'ga nurɨ wigɨ' xia'wo i'rɨŋo Ebɨrɨ'amorɨnɨ.
 40001002	Ebɨrɨ'amo Aisakomɨ emeaŋɨnigɨnɨ. E da'nɨ Aisako Jekopomɨ emeaŋɨnigɨnɨ. E da'nɨ Jekopo Judaomɨ tɨ'nɨ xegɨ' xexɨrɨ'mea'owamɨ tɨ'nɨ emeaŋɨnigɨnɨ.
 40001003	E da'nɨ Juda'o xiɨ'a'i' Temai' tɨ'nɨ ɨ'wɨ' ninɨri Pereso tɨ'nɨ Serao tɨ'nɨ emeaŋɨnigɨnɨ. E da'nɨ Pereso Xesɨronomɨ emeaŋɨnigɨnɨ. E da'nɨ Xesɨrono Ramomɨ emeaŋɨnigɨnɨ.
