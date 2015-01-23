@@ -242,7 +242,8 @@ def listtranslation(full,translation):
     try:
         # search for all available versions of the translation
         versions = [f for f in os.listdir(app.config['TEXTFILES_FOLDER']) 
-            if unicode.encode(translation, 'utf-8') in f]
+            if unicode.encode(translation, 'utf-8') in f
+            and f[-4:] == ".txt" and "deprecated" not in f]
 
         # get the highest version number for this translation
         versionnumbers = sorted([int(v[:-4].split('-')[-1][1:]) 
