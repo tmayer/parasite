@@ -316,3 +316,10 @@ color: #fff;
     color: #AAA;
     font-size: 10pt;
 }
+
+div.lang-fam {
+    max-width: 40em;
+    white-space: nowrap;
+    overflow: hidden;         /* <- this does seem to be required */
+    text-overflow: ellipsis;
+}

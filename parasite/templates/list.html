@@ -37,7 +37,8 @@
 {% for trans in translations %}
 	<tr><td style="text-align:right;color: black;">{{ loop.index }}</td>
 	<td><a href='{{ url_for('.listtranslation', full=full, translation=trans[0]) }}'>{{ trans[0] }}</a> </td>
-	<td style='color: black;'>{{ trans[1] }} </td><td style='color: black;'>{{ trans[2] }}</td></tr>
+	<td style='color: black;'>{{ trans[1] }}</td>
+        <td style='color: black;'><div class='lang-fam' title='{{ trans[2] }}'>{{ trans[2] }}</div></td></tr>
 {% endfor %}
 
 </tbody>

@@ -89,34 +89,25 @@ def listtranslations(full):
     Gathers all translations from the textfile folder and gets the information
     about their genealogy to be shown in the tabular representation.
     """
-    translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
+    bibles = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
             os.listdir(app.config['TEXTFILES_FOLDER']) 
             if f[-4:] == ".txt" and "deprecated" not in f}))
 
-    # get genealogy
-    fh = codecs.open(app.config['DATA_FOLDER'] 
-        + 'lang2fam.csv','r','utf-8').readlines()
-    codebyinfo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh}
+    f = codecs.open(app.config['DATA_FOLDER'] + 'lang_coords_all.txt','r','utf-8')
+    meta = {}
+    for line in f:
+        parts = line.strip().split('\t')
+        meta[parts[0]] = parts
 
-    # get language name
-    fh2 = codecs.open(app.config['DATA_FOLDER'] 
-        + 'lang_coords_all.txt','r','utf-8').readlines()
-    codebygeo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh2[1:]}
+    translations = []
 
-    # combine everything for the tabular representation
-    #translations2 = [(t,codebygeo[t[:3]][0],
-
-    #    codebyinfo[t[:3]][1]) if t[:3] in codebygeo else (t,"","") for t in translations]
-
-    translations2 = list()
-    for t in translations:
-        if t[:3] in codebygeo and t[:3] in codebyinfo and len(codebyinfo[t[:3]]) > 1:
-            translations2.append((t,codebygeo[t[:3]][0],codebyinfo[t[:3]][1]))
-        else:
-            translations2.append((t,"",""))
-
-    return render_template('list.html', full=full, translations=translations2)
-    
+    for b in bibles:
+        meta_b = meta.get(b[:3], (),)
+        family = meta_b[4] if len(meta_b) > 4 else ''
+        language = meta_b[1] if len(meta_b) > 1 else ''
+        translations.append((b, language, family))
+    return render_template('list.html', full=full, translations=translations)
+        
 @app.route('/search/',methods=['POST', 'GET'],defaults={'full': ''})
 @app.route('/full/search/',methods=['POST', 'GET'],defaults={'full': full})
 def search(full):
