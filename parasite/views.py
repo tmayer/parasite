@@ -49,8 +49,8 @@ def index(full):
     codesbytranslations = collections.defaultdict(list)
     for t in translations:
         codesbytranslations[t[:3]].append(t)
-    fh = codecs.open(app.config['DATA_FOLDER'] + 
-        'lang_coords_all.txt','r','utf-8').readlines()
+    fh = codecs.open(app.config['DATA_FOLDER'] +
+        'language_information.csv','r','utf-8').readlines()
     codebygeo = {l.split('\t')[0]:l.strip().split('\t')[1:] for l in fh[1:]}
     
     # create the list of language objects
@@ -93,7 +93,7 @@ def listtranslations(full):
             os.listdir(app.config['TEXTFILES_FOLDER']) 
             if f[-4:] == ".txt" and "deprecated" not in f}))
 
-    f = codecs.open(app.config['DATA_FOLDER'] + 'lang_coords_all.txt','r','utf-8')
+    f = codecs.open(app.config['DATA_FOLDER'] + 'language_information.csv','r','utf-8')
     meta = {}
     for line in f:
         parts = line.strip().split('\t')
