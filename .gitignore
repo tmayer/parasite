@@ -3,6 +3,7 @@
 *.bak
 *.swp
 parasite/config.py
+scripts/datapackage_settings.py
 parasite/static/data/languages.json
 parasite/static/files/
 parasite/static/testfiles/bible_corpus.zip

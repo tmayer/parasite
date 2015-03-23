@@ -1,0 +1,70 @@
+{{
+    "title": "{}", 
+    "Corpus ID": "{}", 
+    "language_name": "{}",  
+    "closest_iso639-3": "{}", 
+    "translation_year": "{}", 
+    "source": "{}",   
+    "copyright": "{}", 
+    "copyright_long": "{}", 
+    "homepage": "{}", 
+    "version": "{}",   
+    
+    
+    "last_modified": "{}", 
+
+    "resources": [
+        {{
+            "file": "{}", 
+            "format": "csv",
+            "description": "The text is unicode normalized and with punctuation separated by spaces from the preceding word. The first column lists the versenames, the second column contains the actual text. When the second column is empty, this indicates that the content of this versename is very probably translated together with the preceding versename. When a versename is not included, than there was no translation available for this verse."
+        }}, 
+        {{
+            "file": "{}", 
+            "format": "csv",
+            "description": "All wordsform in the complete text are listed in the first column, with frequency counts provided in the second column. The wordforms and the frequency counts are made for the complete text, not just for the Gospel according to Mark included in this data package. The line numbers of this file are necessary for the interpretation of the sparse matrix file."
+        }}, 
+        {{
+            "file": "{}", 
+            "format": "txt",
+            "description": "List of all verses occurring somewhere in our complete Bible corpus (across all versions and all languages). The first two digits represent the book, the following three digits represent the chapter, and the final three digits represent the verse. The line numbers of this file are necessary for the interpretation of the sparse matrix file."
+        }}, 
+        {{
+            "file": "{}", 
+            "format": "mtx",
+            "description": "Sparse matrix in Matrix Market format, with line numbers of the wordsforms as rows and line numbers of the the versenames as columns. This matrix includes the information for the complete text, not just for the Gospel according to Mark. This file thus provides information about exactly which wordforms that occur in each verse, but not in which order they occur. This matrix can be used to efficiently compute cross-linguistic coocurrence statistics, suggesting translational equivalents."
+        }},
+        {{
+            "file": "{}", 
+            "format": "json",
+            "description": "Computer-readable JSON file containing all information about this data package."
+        }},
+        {{
+        	"file": "{}",
+        	"format": "md",
+        	"description": "Readme in Markdown format."
+        }}
+    ],
+    
+    "project": 
+    	{{
+    		"name": "Parallel Bible Corpus",
+    		"url": "http://paralleltext.info/",
+    		"description": "{}"
+    	}},
+
+    "datapackage_version": "1.0-beta.5", 
+    "maintainers": [
+        {{
+            "url": "http://th-mayer.de", 
+            "name": "Thomas Mayer", 
+            "email": "thommy.mayer@gmail.com"
+        }}, 
+        {{
+            "url": "http://cysouw.de", 
+            "name": "Michael Cysouw", 
+            "email": "cysouw@uni-marburg.de"
+        }}
+    ]
+
+}}
