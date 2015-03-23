@@ -1,3 +1,5 @@
+#/usr/bin/env python2
+
 # author: Thomas Mayer
 # email: thomas.mayer@uni-marburg.de
 # created: 2013-10-01
@@ -15,75 +17,56 @@ import traceback
 from datapackage_settings import *
 
 
-verseidByVersename = None
-
 def datapackage(text, wordlist, matrix):
     """
     This method generates the datapackage for a given Bible text.
     """
 
     name = text[:-4]
-    fh = open(BIBLEPATH + text).readlines()
-
     # get metadata info
-    info = [l.strip() for l in fh if re.match("^# .+: .+$",l)]
-    infodict = {i[2:].split(':',1)[0]:i.split(':',1)[1].strip() for i in info}
+    with open(BIBLEPATH + text) as file_handle:
+        lines = file_handle.readlines()
+
+    info = [l.strip() for l in lines if re.search("^# .+?: .", l)]
+    infodict = {i[2:].split(':', 1)[0]:i.split(':', 1)[1].strip() for i in info}
     infodict = collections.defaultdict(str, infodict)
 
     # open text file
-    verses = [l.strip().split('\t') for l in fh if l[0].strip() != "#"]
+    verses = [l.strip().split('\t') for l in lines if l[0].strip() != "#"]
 
-    zip_file = zipfile.ZipFile(DATAPACKAGEPATH + name
-        + ".zip",'w',zipfile.ZIP_DEFLATED)
+    zip_file = zipfile.ZipFile(DATAPACKAGEPATH + name + ".zip", 'w', zipfile.ZIP_DEFLATED)
 
     # get project description from file
-    projdesc = open(PROJDESCFILE).read()
-    projdesc = re.sub('\n+',' <br> ',projdesc)
-    infodict['project_description'] = projdesc
+    with open(PROJDESCFILE) as file_handle:
+        infodict['project_description'] = re.sub('\n+', ' <br> ', file_handle.read())
+
+    #collect info for datapackage.json and README.json
+    format_spec = (infodict['title'],
+                   name,
+                   infodict['language_name'],
+                   infodict['closest ISO 639-3'],
+                   infodict['year_short'],
+                   infodict['URL'],
+                   infodict['copyright_short'],
+                   infodict['copyright_long'],
+                   'http://paralleltext.info/data/' + name,
+                   name.split('-')[-1][1:],
+                   datetime.datetime.now().strftime("%Y-%m-%d"),
+                   name + '.txt',
+                   name + '.wordforms',
+                   os.path.basename(VERSENAMES),
+                   name + '.mtx',
+                   'datapackage.json',
+                   'README.md',
+                   infodict['project_description'])
 
     # create datapackage.json file
-    packagestring = open(PACKAGESTRINGFILE).read().format(
-        infodict['title'],
-        name,
-        infodict['language_name'],
-        infodict['closest ISO 639-3'],
-        infodict['year_short'],
-        infodict['URL'],
-        infodict['copyright_short'],
-        infodict['copyright_long'],
-        'http://paralleltext.info/data/' + name,
-        name.split('-')[-1][1:],
-        datetime.datetime.now().strftime("%Y-%m-%d"),
-        name + '.txt',
-        name + '.wordforms',
-        'versenames-v1.txt',
-        name + '.mtx',
-        'datapackage.json',
-        'README.md',
-        infodict['project_description'])
-    zip_file.writestr('datapackage.json',packagestring)
+    with open(PACKAGESTRINGFILE) as file_handle:
+        zip_file.writestr('datapackage.json', file_handle.read().format(*format_spec))
 
     # create README.md file
-    readmestring = open(READMESTRINGFILE).read().format(
-        infodict['title'],
-        name,
-        infodict['language_name'],
-        infodict['closest ISO 639-3'],
-        infodict['year_short'],
-        infodict['URL'],
-        infodict['copyright_short'],
-        infodict['copyright_long'],
-        'http://paralleltext.info/data/' + name,
-        name.split('-')[-1][1:],
-        datetime.datetime.now().strftime("%Y-%m-%d"),
-        name + '.txt',
-        name + '.wordforms',
-        'versenames-v1.txt',
-        name + '.mtx',
-        'datapackage.json',
-        'README.md',
-        infodict['project_description'])
-    zip_file.writestr('README.md',readmestring)
+    with open(READMESTRINGFILE) as file_handle:
+        zip_file.writestr('README.md', file_handle.read().format(*format_spec))
 
     # include matrix file
     zip_file.writestr(name + '.mtx', matrix)
@@ -97,20 +80,18 @@ def datapackage(text, wordlist, matrix):
     # include Mark text file
     markverses = ["\t".join(v) for v in verses if v[0].lstrip()[:2] == "41"]
     markstring = "\n".join(info+markverses)
-    zip_file.writestr(text,markstring)
+    zip_file.writestr(text, markstring)
 
     zip_file.close()
 
 
-def wordlistmatrix(text):
+def wordlistmatrix(text, verseid_by_versename):
     """
     This method generates the word list and matrix files for a given Bible text.
     """
-    global verseidByVersename
-
-    fh = open(BIBLEPATH + text).readlines()
-    verses = [line.split("\t",1) for line in fh
-        if line.lstrip()[0] != "#"]
+    with open(BIBLEPATH + text) as file_handle:
+        lines = file_handle.readlines()
+    verses = [l.split("\t", 1) for l in lines if l.lstrip()[0] != "#"]
 
     wordscount = collections.defaultdict(int)
     wordssentences = collections.defaultdict(list)
@@ -126,27 +107,20 @@ def wordlistmatrix(text):
             wordscount[word] += 1
             wordssentences[word].append(verse_name)
 
-    if verseidByVersename is None:
-        # get the versenames
-        with open(VERSENAMES) as f :
-            ohverse = f.readlines()
-        verseidByVersename = {verse.strip():count
-            for count,verse in enumerate(ohverse)}
-
     # create the wordforms
     wordforms = sorted(wordscount)
     wordlist = ''.join("{}\t{}\n".format(wf, wordscount[wf]) for wf in wordforms)
 
     # construct the matrix
     rows = len(wordforms)
-    cols = len(verseidByVersename)
-    print(rows,cols)
+    cols = len(verseid_by_versename)
+    print(rows, cols)
 
-    sparse = lil_matrix((rows,cols), dtype="int8")
+    sparse = lil_matrix((rows, cols), dtype="int8")
 
-    for i, wf in enumerate(wordforms):
-        for occ in wordssentences[wf]:
-            sparse[i, verseidByVersename[occ]] = 1
+    for i, wordform in enumerate(wordforms):
+        for occ in wordssentences[wordform]:
+            sparse[i, verseid_by_versename[occ]] = 1
 
     # create the matrix file
     matrix_buffer = io.BytesIO()
@@ -156,29 +130,27 @@ def wordlistmatrix(text):
 
 
 def main():
-    global verseidByVersename
     # prepare the versenames
-    with open(VERSENAMES) as f:
-        ohverse = f.readlines()
-    verseidByVersename = {verse.strip():count
-        for count,verse in enumerate(ohverse)}
+    with open(VERSENAMES) as file_handle:
+        ohverse = file_handle.readlines()
+    verseid_by_versename = {verse.strip():count for count, verse in enumerate(ohverse)}
 
     biblefiles = [f for f in os.listdir(BIBLEPATH) if f[-4:] == '.txt' and 'deprecated' not in f]
     failed = []
-    for c,b in enumerate(biblefiles):
-        print(c, b)
+    for index, file_name in enumerate(biblefiles):
+        print index, file_name
         try:
             start = time.time()
-            wordlist, matrix = wordlistmatrix(b)
-            datapackage(b, wordlist, matrix)
+            wordlist, matrix = wordlistmatrix(file_name, verseid_by_versename)
+            datapackage(file_name, wordlist, matrix)
             print 'duration', time.time()-start
         except Exception:
-            failed.append((b, traceback.format_exc()))
+            failed.append((file_name, traceback.format_exc()))
             traceback.print_exc()
     if failed:
-        with open('failed', 'w') as f:
+        with open('failed', 'w') as file_handle:
             for name, exc in failed:
-                f.write('%s\n%s\n\n' % (name, exc))
+                file_handle.write('%s\n%s\n\n' % (name, exc))
 
 
 if __name__ == "__main__":
@@ -187,6 +159,3 @@ if __name__ == "__main__":
         cProfile.run('main()')
     else:
         main()
-
-
-
