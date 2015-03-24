@@ -6,7 +6,8 @@
 
 import re
 import collections
-from scipy.sparse import lil_matrix
+import numpy as np
+from scipy.sparse import coo_matrix
 from scipy.io import mmwrite
 import zipfile
 import datetime
@@ -105,6 +106,7 @@ def wordlistmatrix(text, verseid_by_versename):
         verse_name = verse[0].strip()
         for word in words:
             wordscount[word] += 1
+        for word in set(words):
             wordssentences[word].append(verse_name)
 
     # create the wordforms
@@ -114,13 +116,25 @@ def wordlistmatrix(text, verseid_by_versename):
     # construct the matrix
     rows = len(wordforms)
     cols = len(verseid_by_versename)
-    print(rows, cols)
+    print '\t', rows, cols
 
-    sparse = lil_matrix((rows, cols), dtype="int8")
+    def row_iter():
+        """ Iterator function to create row data of the matrix"""
+        for index, wordform in enumerate(wordforms):
+            for _ in wordssentences[wordform]:
+                yield index
 
-    for i, wordform in enumerate(wordforms):
-        for occ in wordssentences[wordform]:
-            sparse[i, verseid_by_versename[occ]] = 1
+    def column_iter():
+        """ Iterator function to create column data of the matrix"""
+        for wordform in wordforms:
+            for occ in wordssentences[wordform]:
+                yield verseid_by_versename[occ]
+
+    row_data = np.fromiter(row_iter(), 'int32')
+    col_data = np.fromiter(column_iter(), 'int32')
+    data = np.ones(len(col_data), dtype='int8')
+
+    sparse = coo_matrix((data, (row_data, col_data)), dtype='int8', shape=(rows, cols))
 
     # create the matrix file
     matrix_buffer = io.BytesIO()
@@ -130,6 +144,7 @@ def wordlistmatrix(text, verseid_by_versename):
 
 
 def main():
+    """Entry point for this script."""
     # prepare the versenames
     with open(VERSENAMES) as file_handle:
         ohverse = file_handle.readlines()
@@ -143,7 +158,7 @@ def main():
             start = time.time()
             wordlist, matrix = wordlistmatrix(file_name, verseid_by_versename)
             datapackage(file_name, wordlist, matrix)
-            print 'duration', time.time()-start
+            print '\tduration:', time.time()-start
         except Exception:
             failed.append((file_name, traceback.format_exc()))
             traceback.print_exc()
