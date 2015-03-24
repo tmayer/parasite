@@ -18,7 +18,7 @@ import traceback
 from datapackage_settings import *
 
 
-def datapackage(text, wordlist, matrix):
+def datapackage(text, verseid_by_versename):
     """
     This method generates the datapackage for a given Bible text.
     """
@@ -61,6 +61,8 @@ def datapackage(text, wordlist, matrix):
                    'README.md',
                    infodict['project_description'])
 
+    wordlist, matrix = wordlistmatrix(verses, verseid_by_versename)
+
     # create datapackage.json file
     with open(PACKAGESTRINGFILE) as file_handle:
         zip_file.writestr('datapackage.json', file_handle.read().format(*format_spec))
@@ -86,13 +88,10 @@ def datapackage(text, wordlist, matrix):
     zip_file.close()
 
 
-def wordlistmatrix(text, verseid_by_versename):
+def wordlistmatrix(verses, verseid_by_versename):
     """
     This method generates the word list and matrix files for a given Bible text.
     """
-    with open(BIBLEPATH + text) as file_handle:
-        lines = file_handle.readlines()
-    verses = [l.split("\t", 1) for l in lines if l.lstrip()[0] != "#"]
 
     wordscount = collections.defaultdict(int)
     wordssentences = collections.defaultdict(list)
@@ -156,8 +155,7 @@ def main():
         print index, file_name
         try:
             start = time.time()
-            wordlist, matrix = wordlistmatrix(file_name, verseid_by_versename)
-            datapackage(file_name, wordlist, matrix)
+            datapackage(file_name, verseid_by_versename)
             print '\tduration:', time.time()-start
         except Exception:
             failed.append((file_name, traceback.format_exc()))
