@@ -31,18 +31,18 @@
 <h3>Links: </h3>
 <ul>
 	{% if books|length == 0 %}
-		<li><a href='{{ url_for('.listbook',full=full,translation=translationversion,book=41) }}'>sample text (Gospel according to Mark)</a></li>
-		<li><a href='{{ url_for('.zipfile',translation=translation,translationversion=version) }}'>zip data package</a></li>
+		<li><a href='{{ url_for('.listbook',full=full,translation=translation,book=41) }}'>sample text (Gospel according to Mark)</a></li>
+		<li><a href='{{ url_for('.zipfile',translation=translation) }}'>zip data package</a></li>
 	{% else %}
 		<li>Available books: <br>
 		{% for book in books %}
-			<a href='{{ url_for('.listbook',full=full,translation=translationversion,book=book) }}'> {{ book }} </a> |
+			<a href='{{ url_for('.listbook',full=full,translation=translation,book=book) }}'> {{ book }} </a> |
 			{% if loop.index % 10 == 0 %}
 				<br>
 			{% endif %}
 		{% endfor %}
 		</li>
-		<li><a href='{{ url_for('.textfilefull',translation=translation,translationversion=version) }}'>text file</a></li>
+		<li><a href='{{ url_for('.textfilefull',translation=translation) }}'>text file</a></li>
 	{% endif %}
 </ul>
 {% endblock %}

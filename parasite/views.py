@@ -42,10 +42,8 @@ def index(full):
 
     # gather information for json file for map display with geo coords 
     # for all languages
-    translations = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
-        os.listdir(app.config['TEXTFILES_FOLDER']) 
-        if f[-4:] == ".txt" and "deprecated" not in f}))
-    translationtexts = list({"-".join(t) for t in translations})
+    translations = sorted(f[:-4] for f in os.listdir(app.config['TEXTFILES_FOLDER'])
+                          if f[-4:] == ".txt" and "deprecated" not in f)
     codesbytranslations = collections.defaultdict(list)
     for t in translations:
         codesbytranslations[t[:3]].append(t)
@@ -89,9 +87,8 @@ def listtranslations(full):
     Gathers all translations from the textfile folder and gets the information
     about their genealogy to be shown in the tabular representation.
     """
-    bibles = sorted(list({'-'.join(f[:-4].split('-')[:-1]) for f in 
-            os.listdir(app.config['TEXTFILES_FOLDER']) 
-            if f[-4:] == ".txt" and "deprecated" not in f}))
+    bibles = sorted(f[:-4] for f in os.listdir(app.config['TEXTFILES_FOLDER']) 
+                    if f[-4:] == ".txt" and "deprecated" not in f)
 
     f = codecs.open(app.config['DATA_FOLDER'] + 'language_information.csv','r','utf-8')
     meta = {}
@@ -210,56 +207,28 @@ def searchresults(full,text1,query):
         query=query, verses=verses1)
         
     
-# /eng-x-bible-engkj-v0.zip/
-@app.route('/<translation>-v<regex("\d+"):translationversion>.zip')
-def zipfile(translation,translationversion):
+# /eng-x-bible-engkj.zip
+@app.route('/<translation>.zip')
+def zipfile(translation):
     """
     URL: /translation.zip/
     Redirects to the respective zip datapackage for download
     """
 
-    return redirect(app.config["ZIPFILES_BASE_URL"] + translation + "-v"
-        + translationversion + '.zip')
+    return redirect(app.config["ZIPFILES_BASE_URL"] + translation + '.zip')
+
 
 # /eng-x-bible-engkj/
 @app.route('/<translation>/',defaults={'full': ''})
 @app.route('/full/<translation>/',defaults={'full': full})
 def listtranslation(full,translation):
     """
-    URL: /translation/
-    Searches for the highest version number for the respective translation
-    and redirects to its listtranslationversion.
-    """
-    try:
-        # search for all available versions of the translation
-        versions = [f for f in os.listdir(app.config['TEXTFILES_FOLDER']) 
-            if unicode.encode(translation, 'utf-8') in f
-            and f[-4:] == ".txt" and "deprecated" not in f]
-
-        # get the highest version number for this translation
-        versionnumbers = sorted([int(v[:-4].split('-')[-1][1:]) 
-            for v in versions],reverse=True)
-
-        if versionnumbers:
-            return redirect(url_for('.listtranslationversion', full=full,
-                                    translation=translation,
-                                    translationversion=str(versionnumbers[0])))
-    except Exception, e:
-        app.logger.warn(traceback.format_exc())
-
-    return render_template('error.html', full=full, error="Bible text not available"), 404
-
-# /eng-x-bible-engkj-v0/    
-@app.route('/<translation>-v<regex("\d+"):translationversion>/',defaults={'full': ''})
-@app.route('/full/<translation>-v<regex("\d+"):translationversion>/',defaults={'full': full})
-def listtranslationversion(full,translation,translationversion):
-    """
     URL: /translationversion/
     Lists all metadata for the respective translation version together with
     links to the datapackage and (sample) text.
     """
     try:
-        path = app.config['TEXTFILES_FOLDER'] + translation + "-v" + translationversion + '.txt'
+        path = os.path.join(app.config['TEXTFILES_FOLDER'], translation + '.txt')
         if not (os.path.isfile(path) and os.access(path, os.R_OK)):
             return render_template('error.html', full=full, error="Bible text does not exist."), 404
         with codecs.open(path, 'r','utf-8') as f:
@@ -276,16 +245,14 @@ def listtranslationversion(full,translation,translationversion):
         urlsinfo = [l[1] for l in info if l[0] == "URL"]
         urls = urlsinfo[0].split("<br>")
 
-        return render_template('translation.html', full=full,
-            translation=translation,info=info,books=books,urls=urls,
-            translationversion=translation+ "-v" + translationversion,
-            version=translationversion)
+        return render_template('translation.html', full=full, translation=translation,
+                               info=info, books=books, urls=urls)
     except Exception, e:
         app.logger.warn(traceback.format_exc())
         return render_template('error.html', full=full, error="Bible version not available"), 500
-    
 
-# /eng-x-bible-engkj-v0/41/        
+
+# /eng-x-bible-engkj/41/        
 @app.route('/<translation>/<regex("\d{2}"):book>/',defaults={'full': ''})
 @app.route('/full/<translation>/<regex("\d{2}"):book>/',defaults={'full': full})
 def listbook(full,translation,book):
@@ -394,14 +361,13 @@ def listverseflat(full,translation,verse):
         return render_template("error.html", full=full, error="No verses available"), 404
 
 # /full/eng-x-bible-engkj-v0.txt/
-@app.route('/full/<translation>-v<regex("\d+"):translationversion>.txt')
-def textfilefull(translation,translationversion):
+@app.route('/full/<translation>.txt')
+def textfilefull(translation):
     """
     URL: /translationversion.txt
     Redirects to the text file of the given translationversion
     """
-    return redirect('/' + app.config['BASE_URL'] + 'static/files/bible_corpus/corpus/'
-        + translation + "-v" + translationversion + '.txt')
+    return redirect('/' + app.config['BASE_URL'] + app.config['TEXTFILES_FOLDER_URL_PREFIX'] + translation + '.txt')
 
 # /compare/eng-x-bible-engkj-v1/deu-x-bible-luther-v1/
 @app.route('/compare/<translation1>/<translation2>/<verse>/',
@@ -460,25 +426,12 @@ def compare(full,translation1,translation2,verse):
 def zipall(full):
     reltranslations = list()
 
-    translations = ['-'.join(f.split("-")[:-1]) for f in
-        os.listdir(app.config['TEXTFILES_FOLDER'])
-        if f[-4:] == ".txt" and "deprecated" not in f]
-
-    for translation in translations:
-
-        # search for all available versions of the translation
-        versions = [f for f in os.listdir(app.config['TEXTFILES_FOLDER'])
-            if str(translation) in f]
-
-        # get the highest version number for this translation
-        versionnumbers = sorted([int(v[:-4].split('-')[-1][1:])
-            for v in versions],reverse=True)
-
-        reltranslations.append(translation + '-v' + str(versionnumbers[0]) + '.txt')
+    translations = [f for f in os.listdir(app.config['TEXTFILES_FOLDER'])
+                    if f[-4:] == ".txt" and "deprecated" not in f]
 
     zip = ZipFile(app.config['FILE_FOLDER'] + '/bible_corpus.zip','w',ZIP_DEFLATED)
 
-    for f in reltranslations[:100]:
+    for f in translations[:100]:
         zip.write(app.config['TEXTFILES_FOLDER'] + f,f)
 
     zip.close()
