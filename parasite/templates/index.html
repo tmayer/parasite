@@ -284,10 +284,14 @@ The corpus is compiled and maintained by Thomas Mayer and Michael Cysouw within 
             }
             output_string = output_string + "<tr><td colspan='2'><i>" + 
                 txtstring + "</i></td></tr>"
-            texts.forEach(function(a){
-               var parts = a.split('-'); 
-               var textname = parts[3];
-               var urlname = parts[0] + "-x-bible-" + parts[3];
+            texts.forEach(function(urlname){
+               var parts = urlname.split('-');
+               var textname;
+               if (parts.length > 3) {
+                   textname = parts[3];
+               } else {
+                   textname = parts[0];
+               }
                output_string = output_string + "<tr><td class='firsttd'>" + 
                count + ") </td><td>" + 
                "<a href='" + 
