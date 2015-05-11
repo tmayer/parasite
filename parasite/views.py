@@ -6,6 +6,7 @@ import re
 import collections
 import json
 import traceback
+from itertools import takewhile
 
 from werkzeug.routing import BaseConverter
 from flask import Flask, render_template, url_for, redirect, request, g
@@ -241,7 +242,8 @@ def listtranslation(full,translation):
                 and re.match('\d{2}',l[:2])}))
 
         # extract all metadata from the file
-        info = [l[2:].split(":",1) for l in fh if re.match("# [a-zA-Z]",l)]
+        predicate = lambda x: x.strip() == '' or re.match(u"\uFEFF?# [a-zA-Z]", x)
+        info = [l[2:].split(":",1) for l in takewhile(predicate, fh)]
         urlsinfo = [l[1] for l in info if l[0] == "URL"]
         urls = urlsinfo[0].split("<br>")
 
