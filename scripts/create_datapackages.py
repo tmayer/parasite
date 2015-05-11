@@ -142,14 +142,18 @@ def wordlistmatrix(verses, verseid_by_versename):
     return wordlist, matrix_buffer.getvalue()
 
 
-def main():
+def main(args=None):
     """Entry point for this script."""
+    if args is None:
+        args = sys.argv[1:]
     # prepare the versenames
     with open(VERSENAMES) as file_handle:
         ohverse = file_handle.readlines()
     verseid_by_versename = {verse.strip():count for count, verse in enumerate(ohverse)}
 
     biblefiles = [f for f in os.listdir(BIBLEPATH) if f[-4:] == '.txt' and 'deprecated' not in f]
+    if args:
+        biblefiles = [f for f in biblefiles if f in args]
     failed = []
     for index, file_name in enumerate(biblefiles):
         print index, file_name
@@ -168,6 +172,7 @@ def main():
 
 if __name__ == "__main__":
     if '-p' in sys.argv:
+        sys.argv.remove('-p')
         import cProfile
         cProfile.run('main()')
     else:
