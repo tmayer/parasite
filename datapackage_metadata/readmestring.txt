@@ -128,7 +128,7 @@ Bible Book IDs
 * 68 : Judith
 * 69 : Esther, Greek
 * 70 : Wisdom of Solomon
-* 71 : Ecclesiasticus (Sira
+* 71 : Ecclesiasticus (Sirach)
 * 72 : Baruch
 * 73 : Epistle of Jeremiah
 * 74 : Prayer of Azariah
